@@ -1,0 +1,504 @@
+[
+  {
+    "row": 0,
+    "cells": [
+      "Nama Klien",
+      "PT Indo American Seafoods Tbk dan Entitas Anak",
+      "Paraf",
+      "Inisial",
+      "Tanggal"
+    ]
+  },
+  {
+    "row": 1,
+    "cells": [
+      "",
+      "",
+      "Dibuat oleh",
+      "IRA",
+      "7 Oktober 2024"
+    ]
+  },
+  {
+    "row": 2,
+    "cells": [
+      "Periode",
+      "31 Desember 2024",
+      "Direview oleh",
+      "KNW",
+      "9 Oktober 2024"
+    ]
+  },
+  {
+    "row": 3,
+    "cells": [
+      "",
+      "",
+      "Disetujui oleh",
+      "MGN",
+      "11 Oktober 2024"
+    ]
+  },
+  {
+    "row": 4,
+    "cells": [
+      "Integritas dan Karakter calon klien",
+      "Ya",
+      "Tidak",
+      "Tidak dapat Diterapkan",
+      "Komentar"
+    ]
+  },
+  {
+    "row": 5,
+    "cells": [
+      "1.",
+      "Apakah anda, klien anda, atau rekan kerja anda mengenal calon klien tersebut?",
+      "X",
+      "",
+      "",
+      "Sebelum dilakukannya perikatan kerja, terlebih dahulu kami melakukan background check atas calon klien kami yang kami jadikan sebagai dasar pengetahuan awal untuk penerimaan klien."
+    ]
+  },
+  {
+    "row": 6,
+    "cells": [
+      "2. ",
+      "Apakah anda yakin bahwa tidak ada hal-hal atau kondisi yang mengakibatkan diragukannya pemilik, dewan pimpinan, atau manajemen calon klien? Khususnya, apakah anda mempunyai keyakinan memadai bahwa hal-hal di bawah ini tidak terjadi pada calon klien?\nPutusan sanksi hukum\nDugaan adanya tindakan illegal atau kecurangan,\nInvestigasi yang sedang berjalan,\nKeanggotaan manajemen dalam organisasi profesional yang mempunyai reputasi kurang baik,\nPublikasi negatif, dan kedekatan dengan pihak yang etikanya dipertanyakan",
+      "X",
+      "",
+      "",
+      "Kami tidak menaruh keraguan atas dewan pemilik ataupun manajamen calon klien, karena sebelum melalukan perikatan kami melakukan pencarian di internet ataupun platform lainnya untuk mendapatkan sumber informasi awal"
+    ]
+  },
+  {
+    "row": 7,
+    "cells": [
+      "",
+      "Ya",
+      "Tidak",
+      "Tidak dapat Diterapkan",
+      "Komentar"
+    ]
+  },
+  {
+    "row": 8,
+    "cells": [
+      "Auditor/ Akuntan Terdahulu",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "row": 9,
+    "cells": [
+      "3",
+      "Apakah anda telah menghubungi auditor/akuntan terdahulu (Jika relevan dalam yurisdiksi anda) dan menanyakan tentang :\nAkses terhadap kertas kerja calon klien;\nAdanya jasa profesional yang belum diselesaikan;\nAdanya perbedaan pendapat atau ketidaksepakatan;\nIntegritas manajemen dan pimpianan;\nAlasan pergantian; dan \nAdanya permintaan yang tidak masuk akal atau sikap tidak kooperatif.",
+      "",
+      "",
+      "X",
+      "Perikatan Audit pada Tahun 2024 merupakan Klien Berkelanjutan tahun audit ke 2."
+    ]
+  },
+  {
+    "row": 10,
+    "cells": [
+      "4",
+      "Apakah anda telah mendapat izin dari KAP terdahulu untuk menelaah kertas kerja tahun lalu (Jika diizinkan)? Jika ya, apakah anda telah melakukan penelaahan terhadap dokumentasi perencanaan periode lalu yang dilakukan oleh KAP terdahulu, dan menilai apakah KAP terdahulu:\nDinyatakan independen terhadap klien;\nDalam pelaksanaan audit, apakah KAP telah menerapkan standar sesuai SPM;\nTelah memiliki sumber daya dan keahlian yang memadai; dan \nTelah memiliki pemahaman atas entitas dan lingkungannya?",
+      "",
+      "",
+      "X",
+      "Perikatan Audit pada Tahun 2024 merupakan Klien Berkelanjutan tahun audit ke 2."
+    ]
+  },
+  {
+    "row": 11,
+    "cells": [
+      "Laporan Keuangan Sebelumnya",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "row": 12,
+    "cells": [
+      "5",
+      "Apakah anda telah menerima dan menelaah salinan:\nLaporan keuangan untuk periode sekurang-kurangnya dua tahun terakhir;\nBerkas surat pemberitahuan dan ketetapan pajak yang terkait dalam dua tahun terkahir; dan \nSurat rekomendasi kepada manajemen (management letter) dalam dua atau tiga tahun terakhir?",
+      "X",
+      "",
+      "",
+      "Kami telah menerima dan menelaah salinan Laporan Keuangan dua tahun terakhir.\nKami telah menerima Surat Pemberitahuan dan Ketetapan Pajak.\nKami telah menerima surat rekomendasi kepada manajemen."
+    ]
+  },
+  {
+    "row": 13,
+    "cells": [
+      "Penerimaan Klien",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "row": 14,
+    "cells": [
+      "",
+      "Ya",
+      "Tidak",
+      "Tidak dapat Diterapkan",
+      "Komentar"
+    ]
+  },
+  {
+    "row": 15,
+    "cells": [
+      "6",
+      "Seandainya anda mendapatkan akses, apakah anda telah menelaah kertas kerja periode sebelumnya yang dibuat oleh auditor atau akuntan terdahulu, yang bertujuan untuk:\nMenilai kewajaran saldo akhir periode sebelumnya dengan menitikberatkan akun-akun yang signifikan, untuk menentukan perlu tidaknya dilakukan penyajian kembali;\nMenentukan apakah auditor/ akuntan terdahulu mengetahui adanya salah saji yang material \nMenentukan dampak salah saji yang tidak material yang tidak disesuaikan pada laporan keuangan tahun sebelumnya ; dan \nMenilai kelayakan sistem akuntansi manajemen dengan menalaah jurnal penyesuaian dan surat rekomendasi kepada manajemen (management letter) yang dikeluarkan oleh auditor/akuntan terdahulu.",
+      "",
+      "",
+      "X",
+      "Perikatan Audit pada Tahun 2024 merupakan Klien Berkelanjutan tahun audit ke 2."
+    ]
+  },
+  {
+    "row": 16,
+    "cells": [
+      "7 ",
+      "Apakah anda telah menentukan kebijakan akuntansi yang signifikan dan metode yang digunakan dalam laporan keuangan periode tahun sebelumnya dan mempertimbangkan apakah telah diterapkan secara tepat dan konsisten? Misalnya:\nPenilaian signnifikan seperti penyisihan piutang tak tertagih, persediaan, dan investasi;\nKebijakan dan tarif amortisasi;\nEstimasi signifikan; dan \nLainnya (silakan mengidentifikasikan).",
+      "X",
+      "",
+      "",
+      "Kami telah melakukan kebijakan akuntansi dan metode yang digunakan dalam laporan keuangan tahun 31 Desember 2024."
+    ]
+  },
+  {
+    "row": 17,
+    "cells": [
+      "8",
+      "Apakah anda telah menentukan bahwa opini tidak menyatakan pendapat atas laporan keuangan tersebut akan dikeluarkan, sebagai akibat tidak diperolehnya keyakinan memadai pada saldo awal?",
+      "",
+      "",
+      "X",
+      ""
+    ]
+  },
+  {
+    "row": 18,
+    "cells": [
+      "Keahlian",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "row": 19,
+    "cells": [
+      "",
+      "Ya",
+      "Tidak",
+      "Tidak dapat Diterapkan",
+      "Komentar"
+    ]
+  },
+  {
+    "row": 20,
+    "cells": [
+      "9",
+      "Apakah anda telah memperoleh pemahaman menyeluruh tentang bisnis dan operasi klien? (Lengkapi pemahaman pada memorandum klien atau gunakan checklist standar sebagai sumber Informasi).",
+      "X",
+      "",
+      "",
+      "Kami telah memperoleh pemahaman menyeluruh tentang bisnis  dan operasi klien dengan cara melakukan wawancara. Dokumentasi tersebut kami bubuhkan di form 1110 Survey Klien."
+    ]
+  },
+  {
+    "row": 21,
+    "cells": [
+      "10",
+      "Apakah rekan dan staf memiliki pemahaman yang memadai mengenai praktik akuntansi atas industri calon klien untuk melaksanakan suatu perikatan? Jika tidak, apakah informasi yang dibutuhkan untuk memahami praktik akuntansi industry terkait telah diperoleh? Identifikasi sumber-sumber tersebut.",
+      "X",
+      "",
+      "",
+      "Setiap rekan dan staf dalam melakukan pekerjaan audit telah memilki pemahaman yang memadai dalam praktik akuntansi atas industri atau sektor calon klien dalam melakukan perikatan."
+    ]
+  },
+  {
+    "row": 22,
+    "cells": [
+      "11",
+      "Apakah terdapat hal yang telah diidentifikasi yang memerlukan sebuah pengetahuan khusus? Jika ya, apakah pengetahuan yang dibutuhkan tersebut telah tersedia? Identifikasi sumber-sumber tersebut",
+      "",
+      "X",
+      "",
+      "Tidak terdapat hal yang memerlukan sebuah pengetahuan khusus dalam melakukan identifikasi"
+    ]
+  },
+  {
+    "row": 23,
+    "cells": [
+      "Penilaian Independen",
+      "Ya",
+      "Tidak",
+      "Tidak dapat Diterapkan",
+      "Komentar"
+    ]
+  },
+  {
+    "row": 24,
+    "cells": [
+      "12",
+      "Identifikasi dan dokumentasikan larangan-larangan yang ada (ancaman terhadap independensi dimana tidak terdapat pencegahan yang memadai) seperti:\nPenerimaan hadiah yang signifikan atau keramahtamahan dari klien;\nHubungan bisnis yang dekat dengan klien;\nHubungan keluarga dan kedekatan pribadi dengan klien;\nFee yang jauh di bawah harga pasar (kecuali jika dokumentasi dapat membuktikan bahwa standar yang diterapkan telah terpenuhi);\nKepentingan keuangan pada klien;\nAdanya hubungan ketenagakerjaan pada periode pemberian jasa assurance (atau adanya kemungkinan untuk bergabung dikemudian hari) dengan klien, sebagai pejabat, direktur atau pegawai yang mempunyai pengaruh signifikan;\nPinjaman dan pinjaman kepada/dari klien;\nMembuat jurnal atau klasifikasi akuntansi tanpa mendapat persetujuan terlebih dahulu dari manajemen;\nMelaksanakan fungsi manajemen untuk klien; dan \nMelaksanakan jasa non-assurance.\nSeperti jasa konsultasi keuangan, jasa bantuan hukum termasuk penyelesaian perselisihan, atau jasa penilaian yang mencakup penilaian hal-hal material dalam laporan keuangan.\nApakah Anda yakin tidak terdapat larangan-larangan yang dapat menghalangi KAP atau staf untuk melakukan perikatan?",
+      "X",
+      "X\nX\nX\nX\nX\n   X\nX\nX\nX\nX",
+      "",
+      "Kami telah melakukan penandatangan Pernyataan Independensi dan menaati segala kebijakan dan prosedur KAP yang mencakup seksi 290 dari Kode Etik Profesi Akuntan Publik (“Kode Etik”) yang ditetapkan oleh Institut Akuntan Publik Indonesia (“IAPI”) mengenai independensi."
+    ]
+  },
+  {
+    "row": 25,
+    "cells": [
+      "",
+      "Ya",
+      "Tidak",
+      "Tidak dapat Diterapkan",
+      "Komentar"
+    ]
+  },
+  {
+    "row": 26,
+    "cells": [
+      "13",
+      "Mengacu pada Bagian B Kode etik sebagai panduan dalam mengidentifikasi ancaman dan tindak pengamanan terhadap independensi \nIdentifikasi dan dokumentasikan segala ancaman terhadap independensi yang mungkin ada pencegahannya. Tunjukkan masing-masing ancaman tersebut dalam kaitannya dengan KAP dan anggota tim perikatan \nAncaman kepentingan pribadi, yaitu ancaman yang terjadi sebagai akibat dari kepentingan keuangan maupun kepentingan lainnya dari Praktisi maupun anggota keluarga langsung atau anggota keluarga dekat dari Praktisi.\nAncaman telaah-pribadi, yaitu ancaman yang terjadi ketika pertimbangan yang diberikan sebelumnya harus dievaluasi kembali oleh praktisi menyatakan sikap atau pendapat mengenai suatu hal yang dapat mengurangi objetivitas selanjutnya dari Praktisi tersebut;\nAncaman kedekatan, yaitu ancaman yang terjadi ketika praktisi terlalu bersimpati terhadap kepentingan pihak lain sebagai akibat dari kedekatan hubungannya; dan\nAncaman intimidasi, yaitu ancaman yang terjadi ketika praktisi dihalangi untuk bersikap objektif\nEvaluasi dan dokumentasikan apakah ancaman-ancaman tersebut, baik secara individu maupun kelompok, secara jelas tidak signifikan.\nUntuk setiap ancaman yang secara jelas tidak signifikan, dokumentasikan pencegahan yang ada dalam entitas atau KAP dan bagaimana pencegahan tersebut dapat mengurangi ancaman ke tingkat yang dapat diterima. Pencegahan tersebut dapat mencakup standar profesi dan pemantauan, kebijakan KAP mengenai pendidikan berkelanjutan, praktik inspeksi, pengendalian umum, persetujuan klien atas klasifikasi dan jurnal, serta pencegahan yang dimiliki klien seperti lingkungan pengendalian yang kuat dan penempatan personil klien yang kompeten.\nApakah anda yakin bahwa sudah ada pencegahan yang cukup, sehingga ancaman terhadap independensi dapat dihilangkan atau dikurangi ke tingkat yang dapat diterima?",
+      "X\nX\nX\nX\nX",
+      "",
+      "",
+      "Berdasarkan hasil indetifikasi, Tidak terdapat ancaman dan Tindakan pengamanan terhadap independensi"
+    ]
+  },
+  {
+    "row": 27,
+    "cells": [
+      "Penelaahan Review Perikatan",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "row": 28,
+    "cells": [
+      "14 ",
+      "Sudahkah anda menentukan bahwa resiko terkait dengan industri dan calon klien masih dapat diterima oleh KAP? Jelaskan review yang sudah diketahui dan diduga akan terjadi dan dampaknya terhadap perikatan yang akan dilaksanakan, termasuk:\nPemilik yang dominan;\nPelanggaran peraturan perundangan yang akan mengakibatkan denda atau penalti yang material;\nPermasalahan pembiayaan atau ketidakmampuan untuk menyelesaikannya;\nPerhatian media yang tinggi terhadap entitas atau manajemennya;\nTrend dan kinerja industry;\nManajemen yang terlalu konservatif atau terlalu optimis;\nPertisipasi dalam bisnis beresiko tinggi;\nReview yang biasa terjadi pada suatu bisnis;\nSistem akuntansi dan pencatatan yang buruk;\nTransaksi yang tidak biasa atau dengan pihak yang memiliki hubungan istimewa yang nilainya signifikan;\nStruktur operasi/perusahaan yang tidak biasa atau rumit;\nPengendalian dan manajemen yang lemah;\nLemahnya kebijakan pengakuan pendapatan;\nPengaruh signifikan perubahan teknologi terhadap usaha atau industri;\nPotensi manfaat yang diterima manajemen yang sangat tergantung pada kinerja atau transaksi keuangan;\nIsu kompetensi atau kredibilitas manajemen;\nPerubahan terkini dalam manajemen personil kunci, akuntan atau pengacara; dan\nKewajiban pelaporan entitas kepada publik.",
+      "X",
+      "X\nX\nX\nX\nX\nX\nX\nX\nX\nX\nX\nX\nX\nX\nX\nX\nX\nX",
+      "",
+      "Kami telah melakukan penilaian dan pemeriksaan bahwa tidak terdapat resiko yang menyebabkan perikatan tidak diterima. "
+    ]
+  },
+  {
+    "row": 29,
+    "cells": [
+      "",
+      "Ya",
+      "Tidak",
+      "Tidak dapat Diterapkan",
+      "Komentar"
+    ]
+  },
+  {
+    "row": 30,
+    "cells": [
+      "15",
+      "Siapa yang umumnya menggunakan laporan keuangan?\nPerbankan \nDirektorat Jenderal Pajak\nRegulator\nManajemen \nKreditur \nCalon investor/pembeli\nPemegang saham \nLainnya\nApakah ada perselisihan di antara para pemegang saham atau perselisihan lainnya yang diakibatkan oleh hasil perikatan?\nApakah ketergantungan para pengguna terhadap laporan yang diterbitkan menunjukan review yang masuk akal?",
+      "X\nX",
+      "X",
+      "",
+      "Laporan keuangan digunakan oleh Direktorat Jenderal Pajak, Manajemen, Pemegang Saham, Kreditur, Perbankan dan calon Investor"
+    ]
+  },
+  {
+    "row": 31,
+    "cells": [
+      "16",
+      "Adakah bagian-bagian tertentu dari laporan keuangan atau akun-akun tertentu yang perlu mendapat perhatian lebih? Jika ya, dokumentasikan rinciannya.",
+      "",
+      "X",
+      "",
+      "Terdapat akun-akun yang perlu mendapat perhatian lebih yaitu pada akun piutang usaha, persediaan, aset biologis, utang bank dan penjualan."
+    ]
+  },
+  {
+    "row": 32,
+    "cells": [
+      "17",
+      "Apakah auditor/akuntan terdahulu mengajukan banyak jurnal penyesuaian dan atau mengidentifikasikan banyak koreksi yang tidak material dan tidak perlu disesuaikan? Jika ya, dokumentasikan alasan dan dampaknya terhadap review perikatan.",
+      "",
+      "",
+      "X",
+      "Perikatan Audit pada Tahun 2024 merupakan Klien Berkelanjutan tahun audit ke 2."
+    ]
+  },
+  {
+    "row": 33,
+    "cells": [
+      "18",
+      "Apakah anda yakin bahwa tidak ada keraguan yang signifikan terhadap kelangsungan usaha calon klien dalam waktu mendatang (sekurang-kurangnya satu tahun mendatang)?",
+      "X",
+      "",
+      "",
+      "Dalam analisis awal kami tidak menemukan keraguan yang signifikan terhadap usaha calon klien."
+    ]
+  },
+  {
+    "row": 34,
+    "cells": [
+      "",
+      "Ya",
+      "Tidak",
+      "Tidak dapat Diterapkan",
+      "Komentar"
+    ]
+  },
+  {
+    "row": 35,
+    "cells": [
+      "19",
+      "Apakah anda yakin bahwa calon klien mau dan mampu membayar imbalan jasa profesional yang wajar?",
+      "X",
+      "",
+      "",
+      "Kami yakin bahwa calon klien mampu dan sanggup dalam membayar imbalan jasa professional."
+    ]
+  },
+  {
+    "row": 36,
+    "cells": [
+      "Pembatasan Ruang Lingkup",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "row": 37,
+    "cells": [
+      "20",
+      "Apakah anda yakin bahwa tidak ada pembatasan ruang lingkup oleh manajemen klien yang mempengaruhi pekerjaan anda?",
+      "X",
+      "",
+      "",
+      "Kami yakin tidak terdapatnya pembatasan ruang lingkup oleh manajamen klien dalam melakukan perikatan, terutama dalam keterbukaan data klien."
+    ]
+  },
+  {
+    "row": 38,
+    "cells": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "row": 39,
+    "cells": [
+      "21",
+      "Apakah terdapat kriteria yang sesuai untuk digunakan dalam mengevaluasi informasi hal pokok perikatan?",
+      "X",
+      "",
+      "",
+      "Hal yang perlu kami evaluasi dalam melakukan evaluasi dalam perikatan yaitu mengetahui sektor/industri calon klien, mencari informasi sebanyak banyaknya untuk menjadi bahan pertimbangan penerimaan calon klien."
+    ]
+  },
+  {
+    "row": 40,
+    "cells": [
+      "22",
+      "Apakah jangka waktu untuk menyelesaikan pekerjaan masuk akal?",
+      "X",
+      "",
+      "",
+      "Jangka waktu untuk menyelesaikan perkerjaan yang kami estimasikan sudah cukup dalam melakukan perikatan."
+    ]
+  },
+  {
+    "row": 41,
+    "cells": [
+      "Lain-lain",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "row": 42,
+    "cells": [
+      "23",
+      "Apakah terdapat hal-hal lain berkaitan dengan penerimaan klien yang perlu dipertimbangkan, seperti penelaahan secara lebih detail yang terkait dengan independensi dan faktor-faktor lainnya yang beresiko? Jika ya, dokumentasikan hal-hal tersebut beserta penanganannya.",
+      "",
+      "X",
+      "",
+      "Tidak terdapat hal-hal lain yang berkaitan dengan penerimaan klien yang perlu dipertimbangkan, seperti penelaahan secara lebih detail yang terkait dengan independensi dan faktor-faktor lainnya yang beresiko."
+    ]
+  },
+  {
+    "row": 43,
+    "cells": [
+      "24",
+      "Catatan lainnya.",
+      "",
+      "",
+      "X",
+      ""
+    ]
+  },
+  {
+    "row": 44,
+    "cells": [
+      "Catatan Rekan\nPT Indo American Seafoods Tbk dan Entitas Anak merupakan klien berkelanjutan bagi KAP MGN dan Rekan. Standar Akuntansi yang digunakan adalah Standar Akuntansi Keuangan di Indonesia (PSAK).\nPerseroan telah melakukan penawaran umum perdana saham sesuai dengan peraturan perundang-undangan dibidang pasar modal berdasarkan surat pemberitahuan efektif saham perusahaan dari otoritas jasa keuangan No. S-607/PM.02/2024 Tanggal 13 Juni 2024. "
+    ]
+  },
+  {
+    "row": 45,
+    "cells": [
+      "Berdasarkan pengetahuan awal saya mengenai calon klien ini serta faktor-faktor yang telah disebutkan di atas, saya menilai bahwa calon Klien ini:\nX"
+    ]
+  },
+  {
+    "row": 46,
+    "cells": [
+      ""
+    ]
+  },
+  {
+    "row": 47,
+    "cells": [
+      ""
+    ]
+  },
+  {
+    "row": 48,
+    "cells": [
+      "Tanda Tangan              : ",
+      ""
+    ]
+  },
+  {
+    "row": 49,
+    "cells": [
+      "Tanggal                         : 18 Oktober 2024",
+      ""
+    ]
+  }
+]

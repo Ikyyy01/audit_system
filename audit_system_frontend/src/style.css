@@ -1,0 +1,276 @@
+/* ============================================================
+   Design tokens — sinkron dengan design.md
+   Warna brand asli logo: oranye #FF7F00, hijau #008000, ink #2C3E50
+   Diredam jadi --orange-600 / --green-700 supaya nyaman dipakai
+   di UI kerja (lihat design.md bagian 2 untuk alasannya).
+   ============================================================ */
+:root {
+  --ink-900: #2C3E50;
+  --orange-600: #D96B00;
+  --orange-600-hover: #BF5E00;
+  --green-700: #1F6B3A;
+  --green-700-hover: #185A30;
+  --paper: #F7F5F1;
+  --surface: #F4F7F6;
+  --surface-border: #E2E8F0;
+
+  /* Status (dipakai konsisten di semua modul — lihat design.md bag. 2) */
+  --status-neutral: #78909C;   /* draft / belum dimulai — di luar warna brand */
+  --status-pending: #B8935A;
+  --status-progress: #D96B00;
+  --status-review: #5E7A94;
+  --status-approved: #1F6B3A;
+  --status-overdue: #B0503F;
+
+  --font-display: 'Source Serif 4', Georgia, serif;
+  --font-body: 'Inter', Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  min-width: 1024px;
+  min-height: 100vh;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--ink-900);
+  background: var(--paper);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--ink-900);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid #94a3b8;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-family: var(--font-body);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--orange-600);
+}
+
+/* Tombol utama = aksen brand (dipakai sedikit, lihat design.md bag. 5) */
+button {
+  border: 0;
+  border-radius: 6px;
+  background: var(--orange-600);
+  color: #fff;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--orange-600-hover);
+}
+
+button:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+}
+
+.login-page,
+.dashboard-page {
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.login-page {
+  display: grid;
+  place-items: center;
+}
+
+/* Kartu — shadow lembut, bukan card kit generik (design.md bag. 5) */
+.login-card,
+.card,
+.sidebar,
+.content {
+  background: #fff;
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 24px;
+}
+
+.form-grid {
+  display: grid;
+  gap: 14px;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+}
+
+label span,
+.eyebrow,
+.summary-grid span {
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.error {
+  color: var(--status-overdue);
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.dashboard-header h1 {
+  margin: 4px 0;
+}
+
+.user-box {
+  display: grid;
+  gap: 6px;
+  justify-items: end;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+}
+
+.sidebar,
+.content {
+  padding: 20px;
+}
+
+.flow-group + .flow-group {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.flow-group h3,
+.content h2 {
+  margin: 0 0 10px;
+}
+
+.flow-group ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.flow-group li {
+  margin-bottom: 6px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.summary-grid div,
+.welcome-box {
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.summary-grid strong {
+  display: block;
+  margin-top: 6px;
+}
+
+.welcome-box {
+  margin-top: 18px;
+  background: var(--surface);
+}
+
+/* ============================================================
+   Status badge generic — dipakai di form manapun (audit_form_responses.status)
+   Mapping status DB -> warna: lihat design.md bag. 2
+   draft -> neutral | pending_review -> review | reviewed -> progress
+   revision_required -> overdue | approved -> approved
+   ============================================================ */
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-badge--draft {
+  background: color-mix(in srgb, var(--status-neutral) 18%, white);
+  color: var(--status-neutral);
+}
+
+.status-badge--pending-review {
+  background: color-mix(in srgb, var(--status-review) 18%, white);
+  color: var(--status-review);
+}
+
+.status-badge--reviewed,
+.status-badge--pending-approval {
+  background: color-mix(in srgb, var(--status-progress) 18%, white);
+  color: var(--status-progress);
+}
+
+.status-badge--revision-required {
+  background: color-mix(in srgb, var(--status-overdue) 18%, white);
+  color: var(--status-overdue);
+}
+
+.status-badge--approved {
+  background: color-mix(in srgb, var(--status-approved) 18%, white);
+  color: var(--status-approved);
+}
+
+/* Badge tipe klien (TBK/Non-TBK) — beda konsep dari status workflow di atas,
+   jadi sengaja dikasih token netral brand, bukan warna status */
+.badge-client-type {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.badge-client-type--tbk {
+  background: color-mix(in srgb, var(--ink-900) 12%, white);
+  color: var(--ink-900);
+}
+
+.badge-client-type--non-tbk {
+  background: color-mix(in srgb, var(--orange-600) 14%, white);
+  color: var(--orange-600);
+}

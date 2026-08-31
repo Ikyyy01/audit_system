@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 450 200">
+  <path d="M40 80h30v60H40V80zm40 0h30v60H80V80zm40 0h20l30 30 30-30h20v60h-25V105l-25 25-25-25v35H120V80z" fill="#FF7F00"/>
+  <circle cx="230" cy="50" r="15" fill="#008000"/>
+  <path d="M260 80h80v60h-25v-35l-20 20-20-20v35h-15V80z" fill="#FF7F00"/>
+  <text x="50" y="180" font-family="Arial" font-size="20" fill="#2C3E50">Audit - Tax - Financial Advisory</text>
+</svg>

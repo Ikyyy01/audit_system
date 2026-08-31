@@ -1,0 +1,66 @@
+:root {
+    /* Brand Colors (Redefined from design.md) */
+    --ink-900: #2C3E50;
+    --orange-600: #D96B00;
+    --orange-600-hover: #B85A00;
+    --green-700: #1F6B3A;
+    --green-700-hover: #17542d;
+    
+    /* System Colors */
+    --paper: #F7F5F1;
+    --surface: #FFFFFF;
+    --surface-border: #E5E7EB;
+    
+    /* Status Colors */
+    --status-pending: #B8935A;
+    --status-progress: #D96B00;
+    --status-review: #5E7A94;
+    --status-approved: #1F6B3A;
+    --status-overdue: #B0503F;
+    
+    /* UI Tokens */
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+    --shadow-lg: 0 10px 25px rgba(44,62,80,0.08);
+    
+    --font-heading: 'Source Serif 4', serif;
+    --font-body: 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--paper);
+    font-family: var(--font-body);
+    color: var(--ink-900);
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Base Card Style for consistency */
+.card {
+    background: var(--surface);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    padding: 1.5rem;
+}
+
+/* Elegant Buttons */
+.btn {
+    padding: 0.65rem 1.25rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    font-family: var(--font-body);
+}
+
+.btn.primary { background: var(--orange-600); color: white; }
+.btn.primary:hover { background: var(--orange-600-hover); }
+
+/* Typography Helpers */
+h1, h2, h3, h4 { font-family: var(--font-heading); }
