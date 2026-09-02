@@ -13,6 +13,7 @@ class AuditForm extends Model
         'name',
         'parent_form_id',
         'form_type',
+        'render_type',
     ];
 
     public function parentForm(): BelongsTo
@@ -28,6 +29,11 @@ class AuditForm extends Model
     public function sections(): HasMany
     {
         return $this->hasMany(AuditFormSection::class, 'form_id');
+    }
+
+    public function worksheetColumns(): HasMany
+    {
+        return $this->hasMany(AuditWorksheetColumn::class, 'form_id')->orderBy('column_order');
     }
 
     public function responses(): HasMany

@@ -14,12 +14,17 @@ class AuditFormResponse extends Model
         'user_id',
         'status',
         'submitted_at',
+        'partner_notes',
+        'engagement_decision',
+        'signature_path',
+        'signature_uploaded_at',
     ];
 
     protected function casts(): array
     {
         return [
             'submitted_at' => 'datetime',
+            'signature_uploaded_at' => 'datetime',
         ];
     }
 
@@ -41,6 +46,11 @@ class AuditFormResponse extends Model
     public function answers(): HasMany
     {
         return $this->hasMany(AuditFormAnswer::class, 'response_id');
+    }
+
+    public function worksheetRows(): HasMany
+    {
+        return $this->hasMany(AuditWorksheetRow::class, 'response_id')->orderBy('row_order');
     }
 
     public function reviews(): HasMany

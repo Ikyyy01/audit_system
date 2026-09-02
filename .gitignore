@@ -1,0 +1,26 @@
+# Data klien (dokumen audit asli) — tidak boleh masuk ke GitHub
+audit_system_backend/PT Indo American Seafoods Tbk/
+
+# Extracted document artifacts
+docx_extracted/
+docx_table_detailed.json
+extracted_lines.txt
+extracted_text.txt
+temp_form1100.zip
+
+# Build output frontend
+audit_system_frontend/dist/
+audit_system_frontend/node_modules/
+
+# Backend vendor & environment
+audit_system_backend/vendor/
+audit_system_backend/.env
+audit_system_backend/storage/app/public/signatures/
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/

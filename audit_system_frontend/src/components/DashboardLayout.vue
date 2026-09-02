@@ -17,24 +17,72 @@ const loadingClients = ref(false);
 
 const flows = [
     {
-        title: 'PERIKATAN & RISIKO',
+        title: 'PENERIMAAN & INDEPENDENSI',
         forms: [
             { code: '1100', name: 'Memo Penerimaan Klien' },
             { code: '1110', name: 'Survey Klien' },
-            { code: '1130', name: 'Evaluasi Independensi' }
+            { code: '1120', name: 'Surat Keberatan Professional' },
+            { code: '1130', name: 'Evaluasi Independensi' },
+            { code: '1130A', name: '↳ Independence Checklist' },
+            { code: '1130B', name: '↳ First Pass Data' },
+            { code: '1130C', name: '↳ Background Check' },
+            { code: '1130D', name: '↳ Entities Tree / UBO' },
+            { code: '1200', name: 'Konfirmasi Independensi' },
+            { code: '1210', name: 'Kuisioner Independensi' },
+        ]
+    },
+    {
+        title: 'PERENCANAAN & RISIKO',
+        forms: [
+            { code: '1400', name: 'Laporan Risiko' },
+            { code: '1410', name: 'Pemahaman Peraturan' },
+            { code: '1420', name: 'Prosedur Analitik Awal' },
+            { code: '1430', name: 'Proses Pelaporan Keuangan' },
+            { code: '1440', name: 'Fraud Risk Assessment' },
+            { code: '1441', name: '↳ Interview Klien' },
+            { code: '1450', name: 'Penilaian Risiko Bisnis' },
+            { code: '1460', name: 'Pengendalian Internal' },
+        ]
+    },
+    {
+        title: 'MATERIALITAS & PERIKATAN',
+        forms: [
+            { code: '1500', name: 'Risiko Tingkat LK per Akun' },
+            { code: '1600', name: 'Penentuan Materialitas' },
+            { code: '1610', name: 'Materiality Sampling' },
+            { code: '1700', name: 'Alokasi Jam Jasa' },
+            { code: '1900', name: 'Komunikasi Tim Perikatan' },
         ]
     },
     {
         title: 'RESPONS RISIKO',
         forms: [
             { code: '2100', name: 'Strategi Audit' },
-            { code: '2400', name: 'Pemeriksaan IT' }
+            { code: '2110', name: 'Komunikasi Tim Audit' },
+            { code: '2200', name: 'Uji Pengendalian' },
+            { code: '2300', name: 'Materiality Sampling MUS' },
+            { code: '2400', name: 'Pemeriksaan IT' },
+            { code: '2410', name: 'Pengendalian Umum Komputer' },
+            { code: '2420', name: 'Siklus Bisnis IT' },
         ]
     },
     {
         title: 'BUKTI AUDIT',
         forms: [
-            { code: '3100', name: 'Balance Sheet' }
+            { code: '3100', name: 'Balance Sheet' },
+        ]
+    },
+    {
+        title: 'REPRESENTASI & PELAPORAN',
+        forms: [
+            { code: '4100', name: 'Konsultasi Partner' },
+            { code: '4200', name: 'Surat Representasi' },
+            { code: '5100', name: 'Working Balance Sheet' },
+            { code: '5200', name: 'Confirmation Judgement' },
+            { code: '5300', name: 'Materialitas Final' },
+            { code: '5500', name: 'Checklist Audit' },
+            { code: '5700', name: 'Evaluasi Bukti Audit' },
+            { code: '5900', name: 'Memorandum Audit Final' },
         ]
     },
 ];
@@ -46,6 +94,12 @@ async function fetchClients() {
         const res = await fetch('/api/v1/clients', {
             headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' }
         });
+        if (res.status === 401) {
+            // Token expired / invalid — bersihkan sesi dan paksa login ulang
+            localStorage.clear();
+            router.push('/');
+            return;
+        }
         if (res.ok) {
             companies.value = await res.json();
         }
@@ -212,7 +266,7 @@ onMounted(() => {
                 <div v-if="!selectedCompany && route.path !== '/clients' && route.path !== '/admin/folders'" class="selection-overlay">
                     <div class="card selection-box">
                         <div class="selection-icon">
-                            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color: #DC2626;">
+                            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color: var(--orange-600);">
                                 <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
                                 <line x1="9" y1="22" x2="9" y2="16"></line>
                                 <line x1="9" y1="16" x2="15" y2="16"></line>
@@ -269,28 +323,29 @@ onMounted(() => {
 <style scoped>
 .app-layout {
     display: flex;
-    height: 100vh;
-    width: 100vw;
+    height: 100%;
+    width: 100%;
     overflow: hidden;
-    background-color: #F8FAFC;
+    background-color: var(--paper);
     font-family: var(--font-body);
 }
 
 /* Sidebar Styles */
 .sidebar {
     width: 260px;
-    background: #0F172A; /* Premium Navy */
+    background: linear-gradient(160deg, var(--ink-900) 0%, #1b2836 100%); /* konsisten sama panel gelap di Login & Dashboard */
     border-right: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0; /* jaga-jaga: cegah kebentur rule global generik .sidebar dari style.css */
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
 }
 
 .brand-header {
-    padding: 1.25rem 1.5rem;
+    padding: 1.1rem 1.25rem;
     display: flex;
     align-items: center;
-    gap: 0.85rem;
+    gap: 0.75rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -298,11 +353,12 @@ onMounted(() => {
     width: 38px;
     height: 38px;
     background: #FFFFFF;
-    border-radius: 8px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2px;
+    padding: 3px;
+    flex-shrink: 0;
 }
 
 .brand-img {
@@ -314,26 +370,57 @@ onMounted(() => {
 .brand-titles {
     display: flex;
     flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
 }
 
 .brand-name {
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 0.86rem;
     color: #FFFFFF;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.25;
 }
 
 .brand-sub {
-    font-size: 0.72rem;
-    color: #94A3B8;
+    font-size: 0.64rem;
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.35;
+    /* Sengaja dibiarkan wrap ke 2 baris (bukan ellipsis) supaya teksnya keliatan penuh */
+    white-space: normal;
+    word-break: break-word;
 }
 
 .sidebar-scroll {
     flex: 1;
     overflow-y: auto;
-    padding: 1.25rem 1rem;
+    padding: 1.1rem 1rem 1.25rem;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    scroll-padding-top: 0.75rem;
+    /* Scrollbar tipis nge-blend sama sidebar gelap, ganti default abu-abu gemuk bawaan browser */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.32);
 }
 
 .nav-section {
@@ -345,7 +432,7 @@ onMounted(() => {
 .nav-section-title {
     font-size: 0.68rem;
     font-weight: 700;
-    color: #64748B;
+    color: rgba(255, 255, 255, 0.4);
     letter-spacing: 0.08em;
     margin-bottom: 0.35rem;
     padding-left: 0.5rem;
@@ -353,11 +440,11 @@ onMounted(() => {
 
 .nav-item {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 0.75rem;
     padding: 0.65rem 0.75rem;
     border-radius: 8px;
-    color: #94A3B8;
+    color: rgba(255, 255, 255, 0.65);
     text-decoration: none;
     font-size: 0.88rem;
     font-weight: 500;
@@ -370,7 +457,7 @@ onMounted(() => {
 }
 
 .nav-item.active {
-    background: #DC2626; /* Crimson Red */
+    background: var(--orange-600); /* aksen brand — dipakai buat state aktif, bukan warna latar biasa (lihat design.md bag. 5) */
     color: #FFFFFF;
     font-weight: 600;
 }
@@ -387,24 +474,26 @@ onMounted(() => {
 }
 
 .nav-code {
+    flex-shrink: 0;
+    margin-top: 0.1rem;
     font-size: 0.75rem;
     font-weight: 700;
     background: rgba(255, 255, 255, 0.1);
-    color: #94A3B8;
+    color: rgba(255, 255, 255, 0.55);
     padding: 0.15rem 0.4rem;
     border-radius: 4px;
 }
 
 .nav-text {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    line-height: 1.3;
+    word-break: break-word;
 }
 
 /* Active Client Box in Sidebar */
 .client-active-box {
-    background: rgba(220, 38, 38, 0.1);
-    border: 1px solid rgba(220, 38, 38, 0.3);
+    background: color-mix(in srgb, var(--orange-600) 16%, transparent);
+    border: 1px solid color-mix(in srgb, var(--orange-600) 35%, transparent);
     border-radius: 10px;
     padding: 0.85rem;
     display: flex;
@@ -420,7 +509,7 @@ onMounted(() => {
 .client-label {
     font-size: 0.65rem;
     font-weight: 800;
-    color: #FDA4AF;
+    color: color-mix(in srgb, var(--orange-600) 55%, white);
     letter-spacing: 0.05em;
 }
 
@@ -469,7 +558,7 @@ onMounted(() => {
 .user-avatar {
     width: 34px;
     height: 34px;
-    background: #DC2626;
+    background: var(--orange-600);
     color: #FFFFFF;
     font-weight: 700;
     border-radius: 50%;
@@ -496,7 +585,7 @@ onMounted(() => {
 
 .user-role-badge {
     font-size: 0.7rem;
-    color: #94A3B8;
+    color: rgba(255, 255, 255, 0.6);
 }
 
 .logout-action-btn {
@@ -505,7 +594,7 @@ onMounted(() => {
     gap: 0.5rem;
     background: transparent;
     border: none;
-    color: #94A3B8;
+    color: rgba(255, 255, 255, 0.65);
     font-size: 0.85rem;
     font-weight: 500;
     padding: 0.5rem;
@@ -515,8 +604,8 @@ onMounted(() => {
 }
 
 .logout-action-btn:hover {
-    background: rgba(220, 38, 38, 0.1);
-    color: #FDA4AF;
+    background: color-mix(in srgb, var(--orange-600) 16%, transparent);
+    color: color-mix(in srgb, var(--orange-600) 55%, white);
 }
 
 /* Main Wrapper */
@@ -530,7 +619,7 @@ onMounted(() => {
 .top-header {
     height: 60px;
     background: #FFFFFF;
-    border-bottom: 1px solid #E2E8F0;
+    border-bottom: 1px solid var(--surface-border);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -550,7 +639,7 @@ onMounted(() => {
 }
 
 .bc-item.current {
-    color: #0F172A;
+    color: var(--ink-900);
     font-weight: 600;
 }
 
@@ -568,7 +657,7 @@ onMounted(() => {
     display: flex;
     align-items: center;
     gap: 0.4rem;
-    background: #F1F5F9;
+    background: var(--surface);
     padding: 0.4rem 0.8rem;
     border-radius: 20px;
     font-size: 0.8rem;
@@ -576,7 +665,7 @@ onMounted(() => {
 }
 
 .quick-header-btn {
-    background: #DC2626;
+    background: var(--orange-600);
     color: white;
     border: none;
     padding: 0.45rem 0.9rem;
@@ -586,17 +675,40 @@ onMounted(() => {
     cursor: pointer;
 }
 
+.quick-header-btn:hover {
+    background: var(--orange-600-hover);
+}
+
 .page-content {
     flex: 1;
     overflow-y: auto;
     padding: 2rem;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+.page-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.page-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.page-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 999px;
+}
+
+.page-content::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 
 /* Company Selection Overlay */
 .selection-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.58);
+    background: color-mix(in srgb, var(--ink-900) 65%, transparent);
     backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
@@ -623,7 +735,7 @@ onMounted(() => {
 
 .selection-box h2 {
     font-size: 1.35rem;
-    color: #0F172A;
+    color: var(--ink-900);
     margin: 0 0 0.5rem;
 }
 
@@ -645,26 +757,26 @@ onMounted(() => {
     align-items: center;
     gap: 1rem;
     padding: 1rem;
-    border: 1px solid #E2E8F0;
+    border: 1px solid var(--surface-border);
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.15s ease;
     text-align: left;
     pointer-events: auto;
-    background: rgba(248, 250, 252, 0.85);
+    background: var(--surface);
 }
 
 .company-card-select:hover {
-    border-color: #DC2626;
+    border-color: var(--orange-600);
     background: #FFFFFF;
-    box-shadow: 0 8px 20px rgba(220, 38, 38, 0.08);
+    box-shadow: 0 8px 20px rgba(217, 107, 0, 0.08);
     transform: translateY(-1px);
 }
 
 .comp-icon-box {
     width: 40px;
     height: 40px;
-    background: #F1F5F9;
+    background: var(--surface);
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -683,7 +795,7 @@ onMounted(() => {
 
 .comp-details strong {
     font-size: 0.92rem;
-    color: #0F172A;
+    color: var(--ink-900);
     line-height: 1.25;
 }
 
@@ -695,6 +807,6 @@ onMounted(() => {
 }
 
 .company-card-select:hover .arrow-select {
-    color: #DC2626;
+    color: var(--orange-600);
 }
 </style>

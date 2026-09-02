@@ -33,13 +33,20 @@
 html, body {
   margin: 0;
   min-width: 1024px;
-  min-height: 100vh;
+  height: 100%;
+  overflow: hidden;
+}
+
+#app {
+  height: 100%;
 }
 
 body {
   font-family: var(--font-body);
   color: var(--ink-900);
-  background: var(--paper);
+  /* Warna gelap (senada sidebar), bukan putih polos — kalau ada celah sisa render
+     (mis. window rounding OS) yang kelihatan warna gelap nge-blend, bukan putih mencolok. */
+  background: var(--ink-900);
 }
 
 h1, h2, h3 {
@@ -70,6 +77,16 @@ select:focus,
 textarea:focus {
   outline: none;
   border-color: var(--orange-600);
+}
+
+/* Semua textarea di semua form auto-grow ngikutin isinya (lihat directive
+   v-auto-resize / v-mounted-auto-resize di tiap komponen) — jadi resize manual
+   & scrollbar internal dimatiin di sini secara global, satu tempat, bukan
+   diulang per komponen. */
+textarea {
+  resize: none;
+  overflow: hidden;
+  min-height: 42px;
 }
 
 /* Tombol utama = aksen brand (dipakai sedikit, lihat design.md bag. 5) */
@@ -105,9 +122,7 @@ button:disabled {
 
 /* Kartu — shadow lembut, bukan card kit generik (design.md bag. 5) */
 .login-card,
-.card,
-.sidebar,
-.content {
+.card {
   background: #fff;
   border: 1px solid var(--surface-border);
   border-radius: 12px;
@@ -164,11 +179,6 @@ label span,
   display: grid;
   grid-template-columns: 340px 1fr;
   gap: 20px;
-}
-
-.sidebar,
-.content {
-  padding: 20px;
 }
 
 .flow-group + .flow-group {

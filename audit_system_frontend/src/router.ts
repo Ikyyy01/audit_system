@@ -22,14 +22,52 @@ const router = createRouter({
     routes,
 });
 
+function currentRoleName(): string | null {
+    try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (typeof user.role === 'object' && user.role !== null) return user.role.name ?? null;
+        return user.role ?? null;
+    } catch {
+        return null;
+    }
+}
+
 router.beforeEach((to, _from, next) => {
+    const token = localStorage.getItem('token');
+
+    // Belum login: cuma boleh ke halaman Login.
+    if (to.path !== '/' && !token) {
+        next('/');
+        return;
+    }
+
+    // Udah login: kalau navigasi langsung (ketik URL / bookmark) ke '/',
+    // arahkan ke dashboard. Tapi kalau user klik tombol back dari dashboard,
+    // biarkan lewat supaya nggak stuck redirect-loop.
+    if (to.path === '/' && token) {
+        // Cek: kalau datangnya dari '/dashboard' (back button), jangan redirect lagi.
+        if (_from.path === '/dashboard') {
+            next();
+        } else {
+            next('/dashboard');
+        }
+        return;
+    }
+
+    // Folder Drive khusus role Admin.
+    if (to.path === '/admin/folders' && currentRoleName() !== 'Admin') {
+        next('/dashboard');
+        return;
+    }
+
+    // Form kertas kerja wajib udah pilih klien dulu.
     const selectedCompany = localStorage.getItem('selectedCompany');
     if (to.path.startsWith('/form') && !selectedCompany) {
         next('/dashboard');
-    } else {
-        next();
+        return;
     }
+
+    next();
 });
 
 export default router;
-

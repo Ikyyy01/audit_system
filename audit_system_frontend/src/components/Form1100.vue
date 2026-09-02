@@ -15,7 +15,20 @@ const selectedCompanyObj = selectedCompanyString ? JSON.parse(selectedCompanyStr
 const user = JSON.parse(localStorage.getItem('user') || '{}');
 const userRole = typeof user.role === 'object' && user.role !== null ? user.role.name : (user.role || 'Junior');
 
-const status = ref('Draft'); // Draft, Pending Review, Pending Approval, Approved
+// Status selalu snake_case persis kayak enum di backend: draft, pending_review, reviewed, revision_required, approved
+const status = ref('draft');
+const statusLabels: Record<string, string> = {
+    draft: 'Draft',
+    pending_review: 'Menunggu Review',
+    reviewed: 'Menunggu Approval',
+    revision_required: 'Revisi Diperlukan',
+    approved: 'Approved',
+};
+
+function isEditable(): boolean {
+    return status.value === 'draft' || status.value === 'revision_required';
+}
+
 const preparedBy = ref('');
 const preparedDate = ref('');
 const reviewedBy = ref('');
@@ -27,7 +40,38 @@ const partnerNotes = ref('');
 const decision = ref('');
 const signatureFile = ref<File | null>(null);
 const signaturePreview = ref<string | null>(null);
+const signatureUrl = ref<string | null>(null);
 const responseId = ref<number | null>(null);
+
+// Map field_name (mis. "q1_jawaban") -> id kolom audit_form_fields, dipakai buat nyimpen jawaban
+const fieldIdByName = ref<Record<string, number>>({});
+const saving = ref(false);
+
+function buildFieldMap(form: any): Record<string, number> {
+    const map: Record<string, number> = {};
+    for (const sec of form?.sections || []) {
+        for (const field of sec.fields || []) {
+            map[field.field_name] = field.id;
+        }
+    }
+    return map;
+}
+
+function hydrateAnswers(answers: any[]): void {
+    for (const ans of answers || []) {
+        const fname: string = ans.field?.field_name || '';
+        const m = fname.match(/^q(\d+)_(jawaban|komentar)$/);
+        if (!m) continue;
+        const no = m[1];
+        const kind = m[2];
+        for (const sec of sections.value) {
+            const q = sec.questions.find((q) => q.no.replace('.', '') === no);
+            if (!q) continue;
+            if (kind === 'jawaban') q.answer = ans.response_value || '';
+            else q.comment = ans.response_value || '';
+        }
+    }
+}
 
 async function loadFormData() {
     try {
@@ -42,28 +86,29 @@ async function loadFormData() {
         const matchedEng = engagements.find((e: any) => e.client?.id === selectedCompanyObj.id);
         if (!matchedEng) return;
 
-        // Ambil info form
+        // Ambil info form (termasuk sections.fields buat mapping jawaban)
         const formsRes = await fetch('/api/v1/audit-forms', {
             headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' }
         });
         const forms = await formsRes.json();
         const matchedForm = forms.find((f: any) => f.code === '1100');
         if (!matchedForm) return;
+        fieldIdByName.value = buildFieldMap(matchedForm);
 
         // Ambil responses yang ada
         const res = await fetch('/api/v1/audit-form-responses', {
             headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' }
         });
-        
+
         if (res.ok) {
             const data = await res.json();
             let item = data.find((r: any) => r.form?.code === '1100' && r.engagement_id === matchedEng.id);
-            
+
             // Kalau belum ada response, buat response baru di backend
             if (!item) {
                 const createRes = await fetch('/api/v1/audit-form-responses', {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/json'
@@ -80,17 +125,33 @@ async function loadFormData() {
                 status.value = item.status;
                 preparedBy.value = item.user?.name || preparedBy.value;
                 preparedDate.value = item.submitted_at ? new Date(item.submitted_at).toLocaleDateString() : '';
-                
+
                 if (item.reviews && item.reviews.length > 0) {
                     const lastReview = item.reviews[item.reviews.length - 1];
                     reviewedBy.value = lastReview.reviewer?.name || reviewedBy.value;
                     reviewDate.value = lastReview.reviewed_at ? new Date(lastReview.reviewed_at).toLocaleDateString() : '';
                 }
-                
+
                 if (item.approvals && item.approvals.length > 0) {
                     const lastApp = item.approvals[item.approvals.length - 1];
                     approvedBy.value = lastApp.approver?.name || approvedBy.value;
                     approvalDate.value = lastApp.approval_date ? new Date(lastApp.approval_date).toLocaleDateString() : '';
+                }
+
+                // Restore jawaban yang udah pernah disimpan (kalau ada)
+                if (item.answers && item.answers.length > 0) {
+                    hydrateAnswers(item.answers);
+                }
+
+                // Restore catatan rekan, keputusan, & signature
+                if (item.partner_notes) partnerNotes.value = item.partner_notes;
+                if (item.engagement_decision) decision.value = item.engagement_decision;
+                if (item.signature_path) {
+                    signaturePreview.value = `/storage/${item.signature_path}`;
+                    signatureUrl.value = `/storage/${item.signature_path}`;
+                }
+                if (item.signature_uploaded_at) {
+                    conclusionDate.value = new Date(item.signature_uploaded_at).toLocaleDateString('id-ID');
                 }
             }
         }
@@ -99,12 +160,40 @@ async function loadFormData() {
     }
 }
 
-function handleSignatureUpload(event: Event) {
+async function handleSignatureUpload(event: Event) {
     const target = event.target as HTMLInputElement;
-    if (target.files && target.files[0]) {
+    if (target.files && target.files[0] && responseId.value) {
         const file = target.files[0];
         signatureFile.value = file;
         signaturePreview.value = URL.createObjectURL(file);
+
+        const formData = new FormData();
+        formData.append('signature', file);
+
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`/api/v1/audit-form-responses/${responseId.value}/signature`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                signatureUrl.value = data.signature_url;
+                if (data.signature_uploaded_at) {
+                    conclusionDate.value = new Date(data.signature_uploaded_at).toLocaleDateString('id-ID');
+                }
+                alert('Tanda tangan Partner berhasil disimpan ke server.');
+            } else {
+                alert('Gagal mengunggah tanda tangan.');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Terjadi kesalahan jaringan.');
+        }
     }
 }
 
@@ -385,6 +474,63 @@ const sections = ref([
     }
 ]);
 
+async function saveAllAnswers(): Promise<boolean> {
+    if (!responseId.value) return false;
+
+    const answers: { field_id: number; response_value: string }[] = [];
+    for (const section of sections.value) {
+        for (const q of section.questions) {
+            const no = q.no.replace('.', '');
+            const jawabanId = fieldIdByName.value['q' + no + '_jawaban'];
+            const komentarId = fieldIdByName.value['q' + no + '_komentar'];
+            if (jawabanId) answers.push({ field_id: jawabanId, response_value: q.answer });
+            if (komentarId) answers.push({ field_id: komentarId, response_value: q.comment });
+        }
+    }
+
+    const token = localStorage.getItem('token');
+
+    try {
+        if (answers.length) {
+            const res = await fetch(`/api/v1/audit-form-responses/${responseId.value}/answers`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                    Accept: 'application/json'
+                },
+                body: JSON.stringify({ answers })
+            });
+            if (!res.ok) return false;
+        }
+
+        await fetch(`/api/v1/audit-form-responses/${responseId.value}/partner-notes`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/json'
+            },
+            body: JSON.stringify({
+                partner_notes: partnerNotes.value || null,
+                engagement_decision: decision.value || null
+            })
+        });
+
+        return true;
+    } catch (e) {
+        console.error(e);
+        return false;
+    }
+}
+
+async function saveDraft() {
+    saving.value = true;
+    const ok = await saveAllAnswers();
+    saving.value = false;
+    alert(ok ? 'Draft berhasil disimpan.' : 'Gagal menyimpan draft.');
+}
+
 async function submitToManager() {
     // Validasi kelengkapan isian
     for (const section of sections.value) {
@@ -405,16 +551,25 @@ async function submitToManager() {
         return;
     }
 
+    saving.value = true;
+    const savedAnswers = await saveAllAnswers();
+    if (!savedAnswers) {
+        saving.value = false;
+        alert('Gagal menyimpan jawaban sebelum submit. Coba lagi.');
+        return;
+    }
+
     try {
         const response = await fetch(`/api/v1/audit-form-responses/${responseId.value}/submit`, {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
         });
         if (response.ok) {
-            status.value = 'Pending Review';
+            const data = await response.json();
+            status.value = data.status;
             alert('Form 1100 berhasil di-submit ke Manager untuk proses review.');
         } else {
             alert('Gagal submit form.');
@@ -422,41 +577,34 @@ async function submitToManager() {
     } catch (e) {
         console.error(e);
         alert('Terjadi kesalahan koneksi.');
+    } finally {
+        saving.value = false;
     }
 }
 
-// Tambahkan state untuk komentar review
 const managerComment = ref('');
-const reviewLogs = ref<{ by: string, date: string, comment: string, action: string }[]>([]);
 
 async function managerReview(action: 'approve' | 'revise') {
     if (!responseId.value) return alert('ID form response tidak ditemukan.');
     try {
         const response = await fetch(`/api/v1/audit-form-responses/${responseId.value}/review`, {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 action: action === 'approve' ? 'approve' : 'request_revision',
-                comments: managerComment.value // Kirim komentar
+                comments: managerComment.value
             })
         });
         if (response.ok) {
-            if (action === 'approve') {
-                status.value = 'Pending Approval';
-                alert('Form diteruskan ke Partner.');
-            } else {
-                status.value = 'Revision Required';
-                reviewLogs.value.push({
-                    by: user.name,
-                    date: new Date().toLocaleDateString(),
-                    comment: managerComment.value,
-                    action: 'Revisi Diminta'
-                });
-                alert('Form dikembalikan untuk revisi.');
-            }
+            const data = await response.json();
+            status.value = data.status;
+            managerComment.value = '';
+            alert(action === 'approve' ? 'Form diteruskan ke Partner.' : 'Form dikembalikan untuk revisi.');
+        } else {
+            alert('Gagal memproses review.');
         }
     } catch (e) {
         alert('Terjadi kesalahan.');
@@ -470,20 +618,21 @@ async function partnerApprove(action: 'approve' | 'revise') {
     try {
         const response = await fetch(`/api/v1/audit-form-responses/${responseId.value}/approve`, {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
-            body: JSON.stringify({ action: action === 'approve' ? 'approve' : 'reject' })
+            body: JSON.stringify({ action: action === 'approve' ? 'approve' : 'reject', comments: managerComment.value })
         });
         if (response.ok) {
+            const data = await response.json();
+            status.value = data.status;
+            managerComment.value = '';
             if (action === 'approve') {
-                status.value = 'Approved';
                 approvedBy.value = user.name || 'MGN';
                 approvalDate.value = new Date().toISOString().slice(0, 10);
                 alert('Form 1100 disetujui (Approved) secara final.');
             } else {
-                status.value = 'Draft';
                 alert('Form ditolak/diminta revisi.');
             }
         } else {
@@ -510,27 +659,16 @@ async function generateDocument() {
         }
     }
 
-    // 2. Validasi kelengkapan catatan rekan & keputusan
-    if (!partnerNotes.value || partnerNotes.value.trim() === '') {
-        alert('Tidak dapat men-generate dokumen! Catatan Rekan belum diisi.');
-        return;
-    }
-
-    if (!decision.value) {
-        alert('Tidak dapat men-generate dokumen! Keputusan (Diterima/Ditolak) belum dipilih.');
-        return;
-    }
-
     if (!responseId.value) return alert('ID form response tidak ditemukan.');
-    
+
     try {
         const token = localStorage.getItem('token');
         const url = `/api/v1/audit-form-responses/${responseId.value}/export`;
-        
+
         const res = await fetch(url, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        
+
         if (res.ok) {
             const blob = await res.blob();
             const downloadUrl = window.URL.createObjectURL(blob);
@@ -559,8 +697,9 @@ async function generateDocument() {
                     <h3>MEMO PENERIMAAN & KEBERLANJUTAN KLIEN (FORM 1100)</h3>
                     <p class="subtitle">Hal-hal yang perlu dipertimbangkan selama proses evaluasi untuk menerima perikatan dengan klien</p>
                 </div>
-                <div class="status-box">
-                    <span :class="['badge-status', status.toLowerCase().replace(' ', '-')]">{{ status }}</span>
+                <div class="header-right">
+                    <span :class="['badge-status', status]">{{ statusLabels[status] || status }}</span>
+                    <button class="btn export-btn" @click="generateDocument">Generate Word</button>
                 </div>
             </header>
 
@@ -594,7 +733,7 @@ async function generateDocument() {
                                 </ul>
                             </td>
                             <td class="answer-cell">
-                                <template v-if="status === 'Draft'">
+                                <template v-if="isEditable()">
                                     <select v-model="q.answer">
                                         <option value="">-- Pilih --</option>
                                         <option value="Y">Ya</option>
@@ -605,9 +744,9 @@ async function generateDocument() {
                                 <span v-else class="answer-display">{{ q.answer === 'Y' ? 'Ya' : q.answer === 'T' ? 'Tidak' : 'N/A' }}</span>
                             </td>
                             <td class="comment-cell">
-                                <template v-if="status === 'Draft'">
-                                    <textarea 
-                                        v-model="q.comment" 
+                                <template v-if="isEditable()">
+                                    <textarea
+                                        v-model="q.comment"
                                         placeholder="Wajib diisi..."
                                         @input="(e) => {
                                             const target = e.target as HTMLTextAreaElement;
@@ -629,22 +768,23 @@ async function generateDocument() {
                 <h4>Catatan Rekan & Kesimpulan</h4>
                 <div class="form-group">
                     <label><strong>Catatan Rekan:</strong></label>
-                    <textarea v-model="partnerNotes" :disabled="status !== 'Draft' && status !== 'Pending Approval'" rows="4"></textarea>
+                    <textarea v-model="partnerNotes" :disabled="!isEditable()" rows="4"></textarea>
                 </div>
                 <div class="conclusion-box">
                     <p>Berdasarkan pengetahuan awal mengenai calon klien ini serta faktor-faktor di atas, penilaian terhadap calon Klien ini:</p>
                     <div class="decision-radio">
-                        <label><input type="radio" v-model="decision" value="Diterima" :disabled="status !== 'Draft' && status !== 'Pending Approval'"> <strong>Diterima</strong></label>
-                        <label><input type="radio" v-model="decision" value="Ditolak" :disabled="status !== 'Draft' && status !== 'Pending Approval'"> <strong>Ditolak</strong></label>
+                        <label><input type="radio" v-model="decision" value="Diterima" :disabled="!isEditable()"> <strong>Diterima</strong></label>
+                        <label><input type="radio" v-model="decision" value="Ditolak" :disabled="!isEditable()"> <strong>Ditolak</strong></label>
                     </div>
-                    
+
                     <div class="signature-section" v-if="userRole === 'Partner'">
                         <label><strong>Upload Tanda Tangan Partner:</strong></label>
                         <div class="signature-upload">
-                            <input type="file" @change="handleSignatureUpload" accept="image/*,application/pdf" :disabled="status === 'Approved'">
+                            <input type="file" @change="handleSignatureUpload" accept="image/*,application/pdf" :disabled="status === 'approved'">
                             <div v-if="signaturePreview" class="preview">
                                 <img :src="signaturePreview" alt="Signature" width="150" />
                             </div>
+                            <p class="hint-text">*File tanda tangan langsung diupload ke server dan tersimpan di database.</p>
                         </div>
                     </div>
 
@@ -660,16 +800,21 @@ async function generateDocument() {
                     <p class="role-hint">Role akun login: <strong>{{ userRole }}</strong></p>
                 </div>
                 <div class="action-right">
-                    <button class="btn success" @click="generateDocument">Generate Word</button>
+                    <button v-if="(userRole === 'Junior' || userRole === 'Senior') && isEditable()"
+                            class="btn ghost"
+                            :disabled="saving"
+                            @click="saveDraft">
+                        {{ saving ? 'Menyimpan...' : 'Simpan Draft' }}
+                    </button>
 
-                    <button v-if="userRole === 'Junior' || userRole === 'Senior'" 
-                            v-show="status === 'Draft' || status === 'Revision Required' || status === 'draft' || status === 'revision_required'" 
-                            class="btn primary" 
+                    <button v-if="(userRole === 'Junior' || userRole === 'Senior') && isEditable()"
+                            class="btn primary"
+                            :disabled="saving"
                             @click="submitToManager">
                         Submit ke Manager
                     </button>
-                    
-                    <template v-if="(status === 'Pending Review' || status === 'pending_review') && userRole === 'Manager'">
+
+                    <template v-if="status === 'pending_review' && userRole === 'Manager'">
                         <div class="review-panel">
                             <textarea v-model="managerComment" placeholder="Masukkan catatan review / revisi di sini..." class="comment-box"></textarea>
                             <div class="action-right">
@@ -679,7 +824,7 @@ async function generateDocument() {
                         </div>
                     </template>
 
-                    <template v-if="(status === 'Pending Approval' || status === 'reviewed' || status === 'pending_approval') && userRole === 'Partner'">
+                    <template v-if="status === 'reviewed' && userRole === 'Partner'">
                         <div class="review-panel">
                             <textarea v-model="managerComment" placeholder="Masukkan catatan approval / penolakan..." class="comment-box"></textarea>
                             <div class="action-right">
@@ -699,16 +844,19 @@ async function generateDocument() {
 .card { background: #fff; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
 
 .memo-header { display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--orange-600); }
+.header-right { display: flex; align-items: center; gap: 0.75rem; }
+.export-btn { background: var(--surface); color: var(--ink-900); border: 1px solid var(--surface-border); font-size: 0.82rem; padding: 0.45rem 0.9rem; border-radius: 4px; font-weight: bold; cursor: pointer; }
+.export-btn:hover { background: #e2e8f0; }
 .title-section h2 { margin: 0; font-size: 1.1rem; color: #7f8c8d; letter-spacing: 1px; font-family: var(--font-body); }
 .title-section h3 { margin: 0.25rem 0; font-size: 1.3rem; }
 .subtitle { margin: 0; font-size: 0.85rem; color: #95a5a6; }
 
-/* Status form — token sama dengan status-badge global di style.css,
-   dipertahankan sebagai class lokal karena logic status masih string custom */
+/* Status form — key persis sama dengan enum status backend (snake_case) */
 .badge-status { padding: 0.4rem 1rem; border-radius: 20px; font-weight: bold; font-size: 0.85rem; white-space: nowrap; }
 .badge-status.draft { background: color-mix(in srgb, var(--status-neutral) 18%, white); color: var(--status-neutral); }
-.badge-status.pending-review { background: color-mix(in srgb, var(--status-review) 18%, white); color: var(--status-review); }
-.badge-status.pending-approval { background: color-mix(in srgb, var(--status-progress) 18%, white); color: var(--status-progress); }
+.badge-status.pending_review { background: color-mix(in srgb, var(--status-review) 18%, white); color: var(--status-review); }
+.badge-status.reviewed { background: color-mix(in srgb, var(--status-progress) 18%, white); color: var(--status-progress); }
+.badge-status.revision_required { background: color-mix(in srgb, var(--status-overdue) 18%, white); color: var(--status-overdue); }
 .badge-status.approved { background: color-mix(in srgb, var(--status-approved) 18%, white); color: var(--status-approved); }
 
 .client-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; background: var(--surface); }
@@ -739,19 +887,21 @@ select:focus, textarea:focus { outline: none; border-color: var(--orange-600); }
 .decision-radio { display: flex; gap: 2rem; margin: 1rem 0; }
 .signature-section { margin-top: 1rem; padding: 1rem; background: var(--surface); border: 1px dashed var(--orange-600); border-radius: 6px; }
 .signature-upload { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem; }
+.hint-text { margin: 0; font-size: 0.75rem; color: #95a5a6; }
 .conclusion-meta { margin-top: 1rem; font-size: 0.9rem; color: #7f8c8d; }
 
-.action-footer { display: flex; justify-content: space-between; align-items: center; position: sticky; bottom: 1rem; z-index: 5; }
+.action-footer { display: flex; justify-content: space-between; align-items: center; position: sticky; bottom: 1rem; z-index: 5; flex-wrap: wrap; gap: 0.75rem; }
 .role-hint { margin: 0; font-size: 0.9rem; color: #7f8c8d; }
-.action-right { display: flex; gap: 0.75rem; }
+.action-right { display: flex; gap: 0.75rem; flex-wrap: wrap; }
 
 .btn { padding: 0.6rem 1.2rem; border-radius: 4px; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
 .btn.primary { background: var(--orange-600); color: #fff; }
 .btn.primary:hover { background: var(--orange-600-hover); }
 .btn.success { background: var(--green-700); color: #fff; }
 .btn.success:hover { background: var(--green-700-hover); }
 .btn.danger { background: var(--status-overdue); color: #fff; }
 .btn.danger:hover { background: #953f32; }
+.btn.ghost { background: #fff; color: var(--ink-900); border: 1px solid var(--surface-border); }
+.btn.ghost:hover { background: var(--surface); }
 </style>
-
-

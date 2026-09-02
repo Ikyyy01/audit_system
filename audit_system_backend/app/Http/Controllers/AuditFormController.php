@@ -11,13 +11,13 @@ class AuditFormController extends Controller
     public function index(): JsonResponse
     {
         return response()->json(
-            AuditForm::with(['parentForm', 'childForms', 'sections.fields'])->orderBy('code')->get()
+            AuditForm::with(['parentForm', 'childForms', 'sections.fields', 'worksheetColumns'])->orderBy('code')->get()
         );
     }
 
     public function show(AuditForm $auditForm): JsonResponse
     {
-        return response()->json($auditForm->load(['parentForm', 'childForms', 'sections.fields']));
+        return response()->json($auditForm->load(['parentForm', 'childForms', 'sections.fields', 'worksheetColumns']));
     }
 
     public function store(Request $request): JsonResponse

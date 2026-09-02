@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import DashboardLayout from './DashboardLayout.vue';
 
 interface AuditResult {
     id: number;
     client: string;
+    client_id: number | null;
     engagement: string;
     form_code: string;
     form_name: string;
     status: 'draft' | 'pending_review' | 'reviewed' | 'revision_required' | 'approved';
-    updated_at: string;
+    updated_at: string | null;
 }
 
 interface FolderNode {
@@ -18,6 +20,7 @@ interface FolderNode {
     children?: FolderNode[];
 }
 
+const router = useRouter();
 const results = ref<AuditResult[]>([]);
 const loading = ref(false);
 const selectedStatus = ref('all');
@@ -93,7 +96,19 @@ async function fetchResults() {
             headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' }
         });
         if (res.ok) {
-            results.value = await res.json();
+            const raw = await res.json();
+            // API balikin struktur nested (item.form.code, item.engagement.client.name, dst),
+            // di-flatten di sini biar gampang dipakai buat search/filter/tampilan.
+            results.value = raw.map((item: any): AuditResult => ({
+                id: item.id,
+                client: item.engagement?.client?.name || '-',
+                client_id: item.engagement?.client?.id ?? null,
+                engagement: item.engagement ? `${item.engagement.engagement_code ?? '-'} · ${item.engagement.engagement_year ?? '-'}` : '-',
+                form_code: item.form?.code || '-',
+                form_name: item.form?.name || '-',
+                status: item.status,
+                updated_at: item.submitted_at || item.created_at || null,
+            }));
             selectedResult.value = results.value[0] || null;
         }
     } finally {
@@ -103,6 +118,12 @@ async function fetchResults() {
 
 function statusLabel(status: string): string {
     return status.replaceAll('_', ' ');
+}
+
+function formatDate(value: string | null): string {
+    if (!value) return '-';
+    const d = new Date(value);
+    return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ' · ' + d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 }
 
 function toggleFolder(title: string): void {
@@ -121,6 +142,19 @@ function selectByCode(code: string): void {
     const found = results.value.find((item) => item.form_code === code);
     if (found) {
         selectedResult.value = found;
+    }
+}
+
+// Buka form hasil terpilih: set klien aktif ke localStorage lalu navigasi ke halaman form-nya,
+// pakai flow yang sama kayak alur normal (pilih klien -> isi form).
+function openResult(item: AuditResult): void {
+    if (item.client_id && item.client !== '-') {
+        localStorage.setItem('selectedCompany', JSON.stringify({ id: item.client_id, name: item.client }));
+    }
+    if (item.form_code === '1100') {
+        router.push('/form/1100');
+    } else if (item.form_code && item.form_code !== '-') {
+        router.push(`/form/dynamic/${item.form_code}`);
     }
 }
 
@@ -206,9 +240,9 @@ onMounted(fetchResults);
                         <div class="detail-grid">
                             <div><label>Client</label><strong>{{ selectedResult.client }}</strong></div>
                             <div><label>Engagement</label><strong>{{ selectedResult.engagement }}</strong></div>
-                            <div><label>Update terakhir</label><strong>{{ selectedResult.updated_at }}</strong></div>
+                            <div><label>Update terakhir</label><strong>{{ formatDate(selectedResult.updated_at) }}</strong></div>
                         </div>
-                        <button class="open-btn">Buka hasil form</button>
+                        <button class="open-btn" @click="openResult(selectedResult)">Buka hasil form</button>
                     </template>
                     <template v-else>
                         <div class="empty-state">
@@ -249,7 +283,9 @@ onMounted(fetchResults);
 .result-card p { margin: 0.35rem 0 0; color: #7f8c8d; font-size: 0.85rem; }
 .form-code { display: inline-block; margin-right: 0.5rem; color: var(--orange-600); font-weight: 800; }
 .badge { height: fit-content; white-space: nowrap; padding: 0.32rem 0.65rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700; text-transform: capitalize; background: color-mix(in srgb, var(--status-progress) 16%, white); color: var(--status-progress); }
+.badge.draft { background: color-mix(in srgb, var(--status-neutral) 16%, white); color: var(--status-neutral); }
 .badge.pending_review { background: color-mix(in srgb, var(--status-review) 16%, white); color: var(--status-review); }
+.badge.reviewed { background: color-mix(in srgb, var(--status-progress) 16%, white); color: var(--status-progress); }
 .badge.approved { background: color-mix(in srgb, var(--status-approved) 16%, white); color: var(--status-approved); }
 .badge.revision_required { background: color-mix(in srgb, var(--status-overdue) 16%, white); color: var(--status-overdue); }
 .detail-panel { position: sticky; top: 1rem; }

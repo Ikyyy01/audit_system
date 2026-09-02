@@ -2,6 +2,22 @@
 import { ref, onMounted } from 'vue';
 import DashboardLayout from './DashboardLayout.vue';
 
+// Auto-resize textarea Alamat, konsisten sama semua form lain (Form1100, DynamicForm)
+const vAutoResize = {
+    mounted(el: HTMLTextAreaElement) {
+        const resize = () => {
+            el.style.height = 'auto';
+            el.style.height = el.scrollHeight + 'px';
+        };
+        resize();
+        el.addEventListener('input', resize);
+    },
+    updated(el: HTMLTextAreaElement) {
+        el.style.height = 'auto';
+        el.style.height = el.scrollHeight + 'px';
+    }
+};
+
 interface Client {
     id: number;
     name: string;
@@ -149,7 +165,7 @@ onMounted(fetchClients);
                     </div>
                     <div class="form-group">
                         <label>Alamat</label>
-                        <textarea v-model="address" placeholder="Alamat perusahaan..."></textarea>
+                        <textarea v-model="address" v-auto-resize placeholder="Alamat perusahaan..."></textarea>
                     </div>
                     <div class="modal-actions">
                         <button class="btn secondary" @click="showModal = false">Batal</button>
