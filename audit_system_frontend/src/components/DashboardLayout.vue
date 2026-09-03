@@ -22,11 +22,10 @@ const flows = [
             { code: '1100', name: 'Memo Penerimaan Klien' },
             { code: '1110', name: 'Survey Klien' },
             { code: '1120', name: 'Surat Keberatan Professional' },
-            { code: '1130', name: 'Evaluasi Independensi' },
-            { code: '1130A', name: '↳ Independence Checklist' },
-            { code: '1130B', name: '↳ First Pass Data' },
-            { code: '1130C', name: '↳ Background Check' },
-            { code: '1130D', name: '↳ Entities Tree / UBO' },
+            { code: '1130A', name: 'Independence Checklist' },
+            { code: '1130B', name: 'First Pass Data' },
+            { code: '1130C', name: 'Background Check' },
+            { code: '1130D', name: 'Entities Tree / UBO' },
             { code: '1200', name: 'Konfirmasi Independensi' },
             { code: '1210', name: 'Kuisioner Independensi' },
         ]
@@ -180,6 +179,27 @@ onMounted(() => {
                             </svg>
                         </span>
                         <span>Kelola Klien</span>
+                    </router-link>
+                    <router-link v-if="userRole === 'Admin'" to="/engagements" class="nav-item" :class="{ active: route.path === '/engagements' }">
+                        <span class="nav-icon">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                                <path d="M9 14l2 2 4-4"></path>
+                            </svg>
+                        </span>
+                        <span>Kelola Engagement</span>
+                    </router-link>
+                    <router-link v-if="userRole === 'Admin'" to="/users" class="nav-item" :class="{ active: route.path === '/users' }">
+                        <span class="nav-icon">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </span>
+                        <span>Kelola Pegawai</span>
                     </router-link>
                 </div>
 

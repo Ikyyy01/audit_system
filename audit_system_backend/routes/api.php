@@ -5,6 +5,7 @@ use App\Http\Controllers\AuditFormResponseController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\EngagementController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (): void {
@@ -14,6 +15,9 @@ Route::prefix('v1')->group(function (): void {
         Route::get('me', [AuthController::class, 'me']);
         Route::post('logout', [AuthController::class, 'logout']);
 
+        Route::get('engagements-metadata', [EngagementController::class, 'metadata']);
+        Route::get('roles', [UserController::class, 'roles']);
+        Route::apiResource('users', UserController::class);
         Route::apiResource('clients', ClientController::class);
         Route::apiResource('engagements', EngagementController::class);
         Route::apiResource('audit-forms', AuditFormController::class);

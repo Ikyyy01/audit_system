@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import DashboardLayout from './DashboardLayout.vue';
 import WorksheetTable from './WorksheetTable.vue';
 import RepeaterField from './RepeaterField.vue';
+import TimeRangeField from './TimeRangeField.vue';
 
 // Auto-resize textarea, pola sama kayak yang dipakai di Form1100.vue.
 // Pasang listener 'input' langsung di elemen (bukan cuma andelin siklus
@@ -122,6 +123,70 @@ function inputType(fieldType: string): string {
     if (fieldType === 'date') return 'date';
     if (fieldType === 'file') return 'file';
     return 'text';
+}
+
+// Conditional visibility: field tertentu hanya tampil berdasarkan jawaban field lain.
+// Definisi kondisi berdasarkan field_name — field yang tidak ada di sini selalu tampil.
+const conditionalRules: Record<string, { dependsOn: string; showWhen: string[] }> = {
+    prior_kap_name:         { dependsOn: 'prior_kap_type', showWhen: ['KAP_LAIN'] },
+    has_objection_letter:   { dependsOn: 'prior_kap_type', showWhen: ['KAP_LAIN'] },
+    objection_letter_file:  { dependsOn: 'prior_kap_type', showWhen: ['KAP_LAIN'] },
+    objection_statement:    { dependsOn: 'prior_kap_type', showWhen: ['KAP_LAIN'] },
+};
+
+function isFieldVisible(field: Field, sectionFields: Field[]): boolean {
+    const rule = conditionalRules[field.field_name];
+    if (!rule) return true;
+
+    // Cari field yang jadi dependensi di section yang sama
+    const depField = sectionFields.find(f => f.field_name === rule.dependsOn);
+    if (!depField) return true; // fallback: tampilkan jika field sumber tidak ditemukan
+
+    const depValue = answers[depField.id];
+    return rule.showWhen.includes(String(depValue ?? ''));
+}
+
+function parseLegacyVenueAndTime(value: any): { venue: string; timeRange: string } {
+    const raw = String(value || '').trim();
+    if (!raw) {
+        return { venue: '', timeRange: '' };
+    }
+
+    const normalized = raw.replace(/\bWIB\b/gi, '').trim();
+    const timeMatch = normalized.match(/(\d{1,2}[:.]\d{2})\s*(?:-|–|s\/d|to)\s*(\d{1,2}[:.]\d{2})/i);
+
+    if (!timeMatch) {
+        return { venue: raw, timeRange: '' };
+    }
+
+    const timeRange = `${timeMatch[1].replace('.', ':')} - ${timeMatch[2].replace('.', ':')}`;
+    const venue = normalized
+        .replace(/\|/g, ' ')
+        .replace(timeMatch[0], '')
+        .replace(/\s{2,}/g, ' ')
+        .trim()
+        .replace(/[|,-]+$/g, '')
+        .trim();
+
+    return { venue, timeRange };
+}
+
+function updateLegacyVenueAndTime(fieldId: number, next: { venue?: string; timeRange?: string }): void {
+    const current = parseLegacyVenueAndTime(answers[fieldId]);
+    const venue = (next.venue ?? current.venue).trim();
+    const timeRange = (next.timeRange ?? current.timeRange).trim();
+
+    if (!venue && !timeRange) {
+        answers[fieldId] = '';
+        return;
+    }
+
+    if (venue && timeRange) {
+        answers[fieldId] = `${venue} | ${timeRange} WIB`;
+        return;
+    }
+
+    answers[fieldId] = venue || timeRange;
 }
 
 async function loadEverything() {
@@ -522,14 +587,65 @@ watch(code, () => {
                 <div v-for="section in sortedSections()" :key="section.id" class="card section-card">
                     <h4>{{ section.section_name }}</h4>
 
-                    <div v-for="field in section.fields" :key="field.id" class="field-row">
+                    <div v-for="field in section.fields" :key="field.id" class="field-row" v-show="isFieldVisible(field, section.fields)">
                         <label class="field-label">{{ field.field_label }}<span v-if="field.is_required" class="required-mark"> *</span></label>
+
+                        <!-- Info box: KAP MGN dipilih → surat keberatan tidak diperlukan -->
+                        <div v-if="field.field_name === 'prior_kap_type' && answers[field.id] === 'KAP_MGN'" class="info-box info-box--success">
+                            ✓ Periode sebelumnya diaudit oleh KAP MGN & Rekan — Surat Keberatan Profesional tidak diperlukan.
+                        </div>
+                        <div v-if="field.field_name === 'prior_kap_type' && answers[field.id] === 'KAP_LAIN'" class="info-box info-box--warning">
+                            ⚠ Periode sebelumnya diaudit oleh KAP lain — lengkapi informasi dan upload Surat Keberatan Profesional di bawah.
+                        </div>
 
                         <!-- Field Repeater (Tabel Dinamis dengan Tambah/Hapus Baris) -->
                         <RepeaterField
                             v-if="field.field_type === 'repeater'"
                             :model-value="answers[field.id]"
                             :columns="repeaterColumnsFor(field)"
+                            :editable="canEdit"
+                            @update:model-value="answers[field.id] = $event"
+                        />
+
+                        <!-- Field Time Range (Jam Digital dari - s/d) -->
+                        <TimeRangeField
+                            v-else-if="field.field_type === 'time_range'"
+                            :model-value="answers[field.id]"
+                            :editable="canEdit"
+                            @update:model-value="answers[field.id] = $event"
+                        />
+
+                        <!-- Fallback untuk form survey lama yang masih punya field venue_and_time -->
+                        <div v-else-if="field.field_name === 'venue_and_time'" class="venue-time-fallback">
+                            <div class="subfield-group">
+                                <label class="subfield-label">Venue</label>
+                                <textarea
+                                    v-if="canEdit"
+                                    :value="parseLegacyVenueAndTime(answers[field.id]).venue"
+                                    v-auto-resize
+                                    placeholder="Alamat atau lokasi pelaksanaan survey..."
+                                    @input="updateLegacyVenueAndTime(field.id, { venue: ($event.target as HTMLTextAreaElement).value })"
+                                ></textarea>
+                                <p v-else class="answer-display">{{ parseLegacyVenueAndTime(answers[field.id]).venue || '-' }}</p>
+                            </div>
+                            <div class="subfield-group">
+                                <label class="subfield-label">Time</label>
+                                <TimeRangeField
+                                    :model-value="parseLegacyVenueAndTime(answers[field.id]).timeRange"
+                                    :editable="canEdit"
+                                    @update:model-value="updateLegacyVenueAndTime(field.id, { timeRange: $event })"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- Repeater untuk Attendants / Daftar Hadir Peserta Survey -->
+                        <RepeaterField
+                            v-else-if="field.field_name === 'attendants'"
+                            :model-value="answers[field.id]"
+                            :columns="[
+                                { key: 'nama', label: 'Nama Peserta' },
+                                { key: 'jabatan', label: 'Jabatan / Instansi' }
+                            ]"
                             :editable="canEdit"
                             @update:model-value="answers[field.id] = $event"
                         />
@@ -632,6 +748,46 @@ watch(code, () => {
 
 .checkbox-inline { display: flex; align-items: center; gap: 0.5rem; }
 .checkbox-inline input { width: auto; }
+
+.info-box {
+    padding: 0.65rem 0.85rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin-bottom: 0.35rem;
+}
+.info-box--success {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+}
+.info-box--warning {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #92400e;
+}
+
+.venue-time-fallback {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 0.85rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+.subfield-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+.subfield-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
 
 .empty-state { text-align: center; color: #7f8c8d; }
 

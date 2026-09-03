@@ -89,13 +89,22 @@ onMounted(() => {
                     <h1 class="page-title">Dashboard Audit</h1>
                     <p class="page-sub">Selamat datang kembali, <strong>{{ user.name || 'Auditor' }}</strong> ({{ userRole }})</p>
                 </div>
-                <button v-if="userRole === 'Admin'" class="btn-primary-action" @click="router.push('/clients')">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:0.4rem; vertical-align:text-bottom;">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                    Kelola Klien
-                </button>
+                <div class="head-actions" v-if="userRole === 'Admin'">
+                    <button class="btn-primary-action secondary-style" @click="router.push('/engagements')" style="margin-right:0.6rem;">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:0.4rem; vertical-align:text-bottom;">
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                        </svg>
+                        Kelola Engagement
+                    </button>
+                    <button class="btn-primary-action" @click="router.push('/clients')">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:0.4rem; vertical-align:text-bottom;">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Kelola Klien
+                    </button>
+                </div>
             </div>
 
             <!-- 4 Top Metric Cards -->
@@ -392,6 +401,18 @@ onMounted(() => {
     background: #B91C1C;
     box-shadow: 0 6px 16px rgba(220, 38, 38, 0.25);
     transform: translateY(-1px);
+}
+
+.btn-primary-action.secondary-style {
+    background: #475569;
+}
+.btn-primary-action.secondary-style:hover {
+    background: #334155;
+    box-shadow: 0 6px 16px rgba(71, 85, 105, 0.25);
+}
+.head-actions {
+    display: flex;
+    align-items: center;
 }
 
 /* Metrics 4 Grid */

@@ -78,21 +78,20 @@ class Fase1000SisaFieldsSeeder extends Seeder
                 'title'  => 'Surat Keberatan Profesional',
                 'fields' => [
                     [
-                        'name'  => 'has_objection_letter',
-                        'label' => 'Apakah terdapat Surat Keberatan Profesional dari KAP/AP terdahulu?',
-                        'type'  => 'dropdown',
-                    ],
-                    [
-                        'name'     => 'objection_statement',
-                        'label'    => 'Penjelasan / Pernyataan Surat Keberatan Profesional (jika tidak ada, jelaskan alasannya termasuk informasi KAP/AP terdahulu dan periode audit sebelumnya)',
-                        'type'     => 'textarea',
-                        'required' => true,
+                        'name'    => 'prior_kap_type',
+                        'label'   => 'KAP yang mengaudit periode sebelumnya',
+                        'type'    => 'dropdown',
+                        'options' => json_encode([
+                            ['value' => 'KAP_MGN', 'label' => 'KAP Maurice Ganda Nainggolan & Rekan (KAP MGN)'],
+                            ['value' => 'KAP_LAIN', 'label' => 'KAP Lain'],
+                        ]),
                     ],
                     [
                         'name'     => 'prior_kap_name',
                         'label'    => 'Nama KAP/AP yang Mengaudit Periode Sebelumnya',
                         'type'     => 'text',
                         'required' => false,
+                        // Tampil hanya jika prior_kap_type === 'KAP_LAIN'
                     ],
                     [
                         'name'     => 'prior_audit_period',
@@ -100,90 +99,123 @@ class Fase1000SisaFieldsSeeder extends Seeder
                         'type'     => 'text',
                         'required' => false,
                     ],
+                    [
+                        'name'  => 'has_objection_letter',
+                        'label' => 'Apakah terdapat Surat Keberatan Profesional dari KAP/AP terdahulu?',
+                        'type'  => 'dropdown',
+                        // Tampil hanya jika prior_kap_type === 'KAP_LAIN'
+                    ],
+                    [
+                        'name'     => 'objection_letter_file',
+                        'label'    => 'Upload Dokumen Surat Keberatan Profesional',
+                        'type'     => 'file',
+                        'required' => false,
+                        // Tampil hanya jika prior_kap_type === 'KAP_LAIN'
+                    ],
+                    [
+                        'name'     => 'objection_statement',
+                        'label'    => 'Penjelasan / Pernyataan Surat Keberatan Profesional (jika tidak ada, jelaskan alasannya)',
+                        'type'     => 'textarea',
+                        'required' => false,
+                    ],
                 ],
             ],
         ]);
 
         // =====================================================
-        // FORM 1130A: INDEPENDENCE / CONFLICT OF INTEREST CHECKLIST
+        // FORM 1130A: INDEPENDENCE / CONFLICT OF INTEREST PROCEDURES CHECKLIST
         // Sumber: 1130 A. Cek Latar Belakang - Independence Checklist IAS 2024_Rev 1.doc
-        // Tabel: No | Particulars | Yes/No/NA
+        // Label VERBATIM dari dokumen asli — JANGAN diubah/paraphrase.
+        // Struktur tabel asli: No. | P A R T I C U L A R S | Yes/ No/ NA
         // =====================================================
         $seedForm('1130A', [
             [
-                'title'  => 'Independence / Conflict of Interest Procedures Checklist',
+                'title'  => '1. INDEPENDENCE / CONFLICT CHECK CLEARANCE FROM OTHER FUNCTION LINES',
                 'fields' => [
                     [
                         'name'  => 'q1_independence_check',
-                        'label' => '1. INDEPENDENCE / CONFLICT CHECK CLEARANCE FROM OTHER FUNCTION LINES — Have you obtained independence / conflict of interest check results from the other function lines (e.g. Magani Gemilang Natama / FAS)?',
+                        'label' => 'Have you obtained independence / conflict of interest check results from the other function lines: Magani Gemilang Natama (FAS)? (Not required for recurring audit clients or additional review engagements for an audit client.)',
                         'type'  => 'dropdown',
                     ],
                     [
                         'name'     => 'q1_threats_uncovered',
-                        'label'    => '1a. Apakah prosedur tersebut mengungkap ancaman terhadap independensi atau konflik kepentingan?',
+                        'label'    => 'Have these procedures uncovered any threats to independence or conflict of interest?',
                         'type'     => 'dropdown',
-                        'required' => false,
                     ],
                     [
                         'name'     => 'q1_threats_resolved',
-                        'label'    => '1b. Jika Ya, apakah ancaman tersebut sudah diselesaikan?',
+                        'label'    => 'If YES, have the threats been resolved?',
                         'type'     => 'dropdown',
-                        'required' => false,
                     ],
+                ],
+            ],
+            [
+                'title'  => '2. AUDIT COMMITTEE PRE-APPROVAL (ONLY FOR INDONESIA STOCK EXCHANGE REGISTRANT AND / OR SUBSIDIARIES OF INDONESIA STOCK EXCHANGE REGISTRANT)',
+                'fields' => [
                     [
                         'name'  => 'q2_audit_committee_preapproval',
-                        'label' => '2. AUDIT COMMITTEE PRE-APPROVAL (HANYA UNTUK EMITEN BURSA / ANAK PERUSAHAAN EMITEN) — Apakah sudah diperoleh pre-approval dari Komite Audit Emiten untuk jasa yang diberikan?',
+                        'label' => 'If MGN is: (a) the Global Auditor of an Indonesia Stock Exchange Registrant; or (b) not the Global Auditor but we audit material subsidiary and the principal auditors rely upon our audit work: Have you obtained pre-approval from the Registrant\'s Audit Committee through the LCSP for the services provided?',
                         'type'  => 'dropdown',
                     ],
-                    [
-                        'name'     => 'q2_comment',
-                        'label'    => 'Keterangan No. 2',
-                        'type'     => 'textarea',
-                        'required' => false,
-                    ],
+                ],
+            ],
+            [
+                'title'  => '3. CONSULTATION',
+                'fields' => [
                     [
                         'name'  => 'q3_consultation',
-                        'label' => '3. CONSULTATION — Jika diperlukan, apakah tim perikatan berkonsultasi dengan Quality Assurance terkait masalah independensi atau konflik kepentingan?',
+                        'label' => 'If needed, did the engagement team consult with the Quality Assurance on any independence or conflict of interest issue?',
                         'type'  => 'dropdown',
                     ],
-                    [
-                        'name'     => 'q3_comment',
-                        'label'    => 'Keterangan No. 3',
-                        'type'     => 'textarea',
-                        'required' => false,
-                    ],
+                ],
+            ],
+            [
+                'title'  => '4. AUDIT PARTNER ROTATION',
+                'fields' => [
                     [
                         'name'  => 'q4_partner_rotation',
-                        'label' => '4. AUDIT PARTNER ROTATION — Apakah audit partner telah melayani klien ini lebih dari 5 tahun? (Berlaku untuk Public Interest Entity)',
+                        'label' => 'Has the audit partner served this client served for more than 5 years? (Applicable for Public Interest Entity Only)',
                         'type'  => 'dropdown',
                     ],
                     [
                         'name'     => 'q4_cooling_period',
-                        'label'    => '4a. Jika Ya, apakah sudah ada cooling period 5 tahun sebelum Audit Partner melayani klien ini kembali?',
+                        'label'    => 'If No 1 is yes, has there been 5-year cooling period before the Audit Partner serves this client again? (Applicable for Public Interest Entity Only)',
                         'type'     => 'dropdown',
-                        'required' => false,
                     ],
                     [
                         'name'  => 'q4_eqar_rotation',
-                        'label' => '4b. Apakah individu yang melakukan Engagement Quality Assurance Review ditugaskan lebih dari 5 tahun?',
+                        'label' => 'Has the Individual performing Engagement Quality Assurance Review been assigned for more than 5 years? (Applicable for Public Interest Entity Only)',
                         'type'  => 'dropdown',
                     ],
                     [
                         'name'     => 'q4_eqar_cooling',
-                        'label'    => '4c. Jika Ya, apakah sudah ada cooling period 3 tahun?',
+                        'label'    => 'If no 3 is yes, has there been 3-year cooling period before the Audit Partner serves this client again? (Applicable for Public Interest Entity Only)',
                         'type'     => 'dropdown',
-                        'required' => false,
+                    ],
+                ],
+            ],
+            [
+                'title'  => '5. Whether they or the body being searched is included in the category',
+                'fields' => [
+                    [
+                        'name'  => 'pep_status',
+                        'label' => '1. Politically Exposed Person (PEP)',
+                        'type'  => 'dropdown',
                     ],
                     [
-                        'name'  => 'q5_pep_check',
-                        'label' => '5. WHETHER INCLUDED IN CATEGORY — Apakah pihak yang diperiksa termasuk dalam kategori: (1) Politically Exposed Person (PEP), (2) High Risk Customers (HRC), (3) High Risk Business (HRB), (4) High Risk Countries?',
-                        'type'  => 'textarea',
+                        'name'  => 'hrc_status',
+                        'label' => '2. High Risk Customers (HRC)',
+                        'type'  => 'dropdown',
                     ],
                     [
-                        'name'     => 'overall_conclusion',
-                        'label'    => 'Kesimpulan keseluruhan atas pemeriksaan independensi dan konflik kepentingan',
-                        'type'     => 'textarea',
-                        'required' => false,
+                        'name'  => 'hrb_status',
+                        'label' => '3. High Risk Business (HRB)',
+                        'type'  => 'dropdown',
+                    ],
+                    [
+                        'name'  => 'countries_status',
+                        'label' => '4. High Risk Countries (HRC)',
+                        'type'  => 'dropdown',
                     ],
                 ],
             ],
@@ -194,50 +226,86 @@ class Fase1000SisaFieldsSeeder extends Seeder
         // Sumber: 1130 B. Cek Latar Belakang First Pass Data IAS 2024 Rev 1.xlsx
         // Isi: Data identitas perusahaan, pemegang saham, direksi/komisaris, entitas anak
         // =====================================================
+        // --- 1130B stockholders column definitions (with formula + multiplier) ---
+        $stockholdersParentColumns = json_encode([
+            ['key' => 'nama', 'label' => 'Name', 'type' => 'text', 'width' => '35%'],
+            ['key' => 'jumlah_lembar', 'label' => 'Number of shares', 'type' => 'number', 'width' => '20%'],
+            ['key' => 'nilai_rp', 'label' => 'In IDR', 'formula' => 'jumlah_lembar * __multiplier__', 'width' => '25%', 'total' => true,
+                'multiplier' => ['source' => 'jumlah_lembar', 'label' => 'Nilai per Lembar Saham (IDR)', 'default' => 50]],
+            ['key' => 'persentase', 'label' => '% of ownership', 'width' => '15%', 'percent_of' => 'jumlah_lembar'],
+        ]);
+
+        $stockholdersSubsidiaryColumns = json_encode([
+            ['key' => 'nama', 'label' => 'Name', 'type' => 'text', 'width' => '35%'],
+            ['key' => 'jumlah_saham', 'label' => 'Number of shares', 'type' => 'number', 'width' => '20%'],
+            ['key' => 'nilai_rp', 'label' => 'In IDR', 'formula' => 'jumlah_saham * __multiplier__', 'width' => '25%', 'total' => true,
+                'multiplier' => ['source' => 'jumlah_saham', 'label' => 'Nilai per Lembar Saham (IDR)', 'default' => 1000000]],
+            ['key' => 'persentase', 'label' => '% of ownership', 'width' => '15%', 'percent_of' => 'jumlah_saham'],
+        ]);
+
+        $directorsColumns = json_encode([
+            ['key' => 'nama', 'label' => 'Name', 'type' => 'text', 'width' => '15%'],
+            ['key' => 'gender', 'label' => 'Gender', 'type' => 'text', 'width' => '8%'],
+            ['key' => 'no_identity', 'label' => 'No Identity', 'type' => 'text', 'width' => '15%'],
+            ['key' => 'address', 'label' => 'Address', 'type' => 'text', 'width' => '20%'],
+            ['key' => 'date_of_birth', 'label' => 'Date of Birth', 'type' => 'date', 'width' => '10%'],
+            ['key' => 'nationality', 'label' => 'Nationality', 'type' => 'text', 'width' => '10%'],
+            ['key' => 'function', 'label' => 'Function', 'type' => 'text', 'width' => '12%'],
+        ]);
+
+        $subsidiariesColumns = json_encode([
+            ['key' => 'nama_entitas', 'label' => 'Entitas Anak', 'type' => 'text', 'width' => '50%'],
+            ['key' => 'domisili', 'label' => 'Domisili', 'type' => 'text', 'width' => '40%'],
+        ]);
+
+        $investmentsColumns = json_encode([
+            ['key' => 'nama_entitas', 'label' => 'Entitas Anak', 'type' => 'text', 'width' => '15%'],
+            ['key' => 'kegiatan_usaha', 'label' => 'Kegiatan Usaha', 'type' => 'text', 'width' => '25%'],
+            ['key' => 'tahun_pendirian', 'label' => 'Tahun Pendirian', 'type' => 'text', 'width' => '8%'],
+            ['key' => 'tahun_penyertaan', 'label' => 'Tahun Penyertaan', 'type' => 'text', 'width' => '8%'],
+            ['key' => 'domisili', 'label' => 'Domisili', 'type' => 'text', 'width' => '10%'],
+            ['key' => 'jumlah_aset', 'label' => 'Jumlah Aset sebelum eliminasi', 'type' => 'text', 'width' => '18%'],
+            ['key' => 'persentase', 'label' => 'Persentasi Kepemilikan', 'type' => 'text', 'width' => '10%'],
+        ]);
+
         $seedForm('1130B', [
             [
                 'title'  => 'Identitas Perusahaan',
                 'fields' => [
-                    [
-                        'name'  => 'company_name',
-                        'label' => 'Company Name (Nama Perusahaan)',
-                        'type'  => 'text',
-                    ],
-                    [
-                        'name'  => 'company_address',
-                        'label' => 'Address (Alamat Perusahaan)',
-                        'type'  => 'textarea',
-                    ],
-                    [
-                        'name'  => 'industry',
-                        'label' => 'Industry (Bidang Usaha)',
-                        'type'  => 'text',
-                    ],
-                    [
-                        'name'  => 'incorporated_in',
-                        'label' => 'Company Incorporated In (Tempat Pendirian)',
-                        'type'  => 'text',
-                    ],
-                    [
-                        'name'  => 'date_of_incorporation',
-                        'label' => 'Date of Incorporation (Tanggal Pendirian)',
-                        'type'  => 'date',
-                    ],
+                    ['name' => 'company_name', 'label' => 'Company Name (Nama Perusahaan)', 'type' => 'text'],
+                    ['name' => 'company_address', 'label' => 'Address (Alamat Perusahaan)', 'type' => 'textarea'],
+                    ['name' => 'industry', 'label' => 'Industry (Bidang Usaha)', 'type' => 'text'],
+                    ['name' => 'incorporated_in', 'label' => 'Company Incorporated In (Tempat Pendirian)', 'type' => 'text'],
+                    ['name' => 'date_of_incorporation', 'label' => 'Date of Incorporation (Tanggal Pendirian)', 'type' => 'date'],
                 ],
             ],
             [
                 'title'  => 'Pemegang Saham (Stockholders)',
                 'fields' => [
                     [
-                        'name'  => 'shareholders_info',
-                        'label' => 'Struktur Kepemilikan Saham (format: Nama Pemegang Saham | Jumlah Saham | Nilai IDR | % Kepemilikan)',
-                        'type'  => 'textarea',
+                        'name'    => 'stockholders_parent_background',
+                        'label'   => 'PT Indo American Seafoods ("Perusahaan") — Riwayat Pendirian & Perubahan Anggaran Dasar',
+                        'type'    => 'textarea',
+                        'required' => false,
                     ],
                     [
-                        'name'     => 'shareholders_background',
-                        'label'    => 'Riwayat Singkat Perusahaan & Pemegang Saham (termasuk perubahan anggaran dasar terakhir)',
-                        'type'     => 'textarea',
+                        'name'    => 'stockholders_parent',
+                        'label'   => 'Susunan Pemegang Saham — PT Indo American Seafoods Tbk',
+                        'type'    => 'repeater',
+                        'options' => $stockholdersParentColumns,
+                    ],
+                    [
+                        'name'    => 'stockholders_subsidiary_background',
+                        'label'   => 'PT Indokom Samudra Persada ("ISP") — Riwayat Pendirian & Perubahan Anggaran Dasar',
+                        'type'    => 'textarea',
                         'required' => false,
+                    ],
+                    [
+                        'name'    => 'stockholders_subsidiary',
+                        'label'   => 'Susunan Pemegang Saham — PT Indokom Samudra Persada (Entitas Anak)',
+                        'type'    => 'repeater',
+                        'required' => false,
+                        'options' => $stockholdersSubsidiaryColumns,
                     ],
                 ],
             ],
@@ -245,9 +313,10 @@ class Fase1000SisaFieldsSeeder extends Seeder
                 'title'  => 'Direksi dan Dewan Komisaris',
                 'fields' => [
                     [
-                        'name'  => 'directors_commissioners',
-                        'label' => 'Daftar Direksi dan Dewan Komisaris (format: No | Nama | Jenis Kelamin | No. Identitas | Alamat | Tgl Lahir | Kebangsaan | Jabatan)',
-                        'type'  => 'textarea',
+                        'name'    => 'directors_commissioners',
+                        'label'   => 'Commissioners and Directors',
+                        'type'    => 'repeater',
+                        'options' => $directorsColumns,
                     ],
                 ],
             ],
@@ -256,15 +325,17 @@ class Fase1000SisaFieldsSeeder extends Seeder
                 'fields' => [
                     [
                         'name'     => 'subsidiaries',
-                        'label'    => 'Daftar Entitas Anak / Subsidiary (format: No | Nama Entitas Anak | Domisili)',
-                        'type'     => 'textarea',
+                        'label'    => 'Subsidiary',
+                        'type'     => 'repeater',
                         'required' => false,
+                        'options'  => $subsidiariesColumns,
                     ],
                     [
                         'name'     => 'investments',
-                        'label'    => 'Daftar Investasi (format: No | Nama Entitas | Kegiatan Usaha | Tahun Pendirian | Tahun Penyertaan | Domisili | Jumlah Aset | % Kepemilikan)',
-                        'type'     => 'textarea',
+                        'label'    => 'Investment',
+                        'type'     => 'repeater',
                         'required' => false,
+                        'options'  => $investmentsColumns,
                     ],
                 ],
             ],

@@ -3,6 +3,8 @@ import Login from './components/Login.vue';
 import Dashboard from './components/Dashboard.vue';
 import Form1100 from './components/Form1100.vue';
 import ClientManagement from './components/ClientManagement.vue';
+import EngagementManagement from './components/EngagementManagement.vue';
+import UserManagement from './components/UserManagement.vue';
 import AdminFolderDrive from './components/AdminFolderDrive.vue';
 import DynamicForm from './components/DynamicForm.vue';
 
@@ -10,6 +12,8 @@ const routes = [
     { path: '/', component: Login },
     { path: '/dashboard', component: Dashboard },
     { path: '/clients', component: ClientManagement },
+    { path: '/engagements', component: EngagementManagement },
+    { path: '/users', component: UserManagement },
     { path: '/admin/folders', component: AdminFolderDrive },
     { path: '/form/1100', component: Form1100 },
     // Form generic — baca struktur section/field dari database (audit_forms API),

@@ -20,9 +20,11 @@ return new class extends Migration
             // ── Form 1110 ─────────────────────────────────────────
             'name_of_shareholders' => [
                 ['key' => 'nama', 'label' => 'Nama Pemegang Saham', 'type' => 'text', 'width' => '35%'],
-                ['key' => 'persentase', 'label' => 'Kepemilikan (%)', 'type' => 'number', 'width' => '15%'],
-                ['key' => 'jumlah_lembar', 'label' => 'Jumlah Lembar', 'type' => 'text', 'width' => '25%'],
-                ['key' => 'nilai_nominal', 'label' => 'Nilai Nominal (Rp)', 'type' => 'text', 'width' => '25%'],
+                ['key' => 'jumlah_lembar', 'label' => 'Jumlah Lembar Saham', 'type' => 'number', 'width' => '20%'],
+                ['key' => 'nilai_nominal', 'label' => 'Nilai Nominal (Rp)', 'formula' => 'jumlah_lembar * __multiplier__', 'width' => '25%', 'total' => true,
+                    'multiplier' => ['source' => 'jumlah_lembar', 'label' => 'Nilai per Lembar Saham (IDR)', 'default' => 50]
+                ],
+                ['key' => 'persentase', 'label' => 'Kepemilikan (%)', 'width' => '20%', 'percent_of' => 'jumlah_lembar'],
             ],
             'name_of_management' => [
                 ['key' => 'jabatan', 'label' => 'Jabatan', 'type' => 'text', 'width' => '35%'],

@@ -112,7 +112,8 @@ class Fase1000AnswersSeeder extends Seeder
         // =====================================================
         $seedAnswers('1110', [
             'date_of_survey'              => '2024-10-09',
-            'venue_and_time'              => 'Kantor PT Indo American Seafoods Tbk, Jl. Ir. Sutami Km. 13 Lampung Selatan | 09.00 – 12.00 WIB',
+            'venue'                       => 'Kantor PT Indo American Seafoods Tbk, Jl. Ir. Sutami Km. 13 Lampung Selatan',
+            'time_range'                  => '09:00 - 12:00',
             'attendants'                  => "1. Maurice Ganda Nainggolan (Partner KAP)\n2. Kenny Nurardi Wijaya (Audit Manager)\n3. Ibnu Syena Alfitra (Direktur Utama IAS)\n4. Abu Yazid (Direktur Keuangan IAS)",
             'legal_name'                  => 'PT Indo American Seafoods Tbk dan Entitas Anak',
             'scope_of_engagement'         => 'Audit Umum atas Laporan Keuangan Konsolidasian untuk tahun yang berakhir 31 Desember 2024',
@@ -155,38 +156,32 @@ class Fase1000AnswersSeeder extends Seeder
         // 1120: SURAT KEBERATAN PROFESIONAL
         // =====================================================
         $seedAnswers('1120', [
-            'has_objection_letter' => 'N',
-            'objection_statement'  => 'Surat Keberatan Profesional untuk audit 31 Desember 2024 tidak ada dikarenakan tahun 31 Desember 2023 diaudit oleh KAP Maurice Ganda Nainggolan dan Rekan dengan Maurice Ganda Nainggolan sebagai AP.',
+            'prior_kap_type'       => 'KAP_MGN',
             'prior_kap_name'       => 'KAP Maurice Ganda Nainggolan dan Rekan (AP: Maurice Ganda Nainggolan)',
             'prior_audit_period'   => '31 Desember 2023',
-        ]);
-
-        // =====================================================
-        // 1130: EVALUASI INDEPENDENSI (PARENT)
-        // =====================================================
-        $seedAnswers('1130', [
-            'financial_interest'      => 'N',
-            'family_relationship'     => 'N',
-            'independence_conclusion' => 'Seluruh anggota tim perikatan independen terhadap PT Indo American Seafoods Tbk dan Entitas Anak sesuai Kode Etik Profesi Akuntan Publik Seksi 290.',
+            'has_objection_letter' => 'N',
+            'objection_letter_file'=> null,
+            'objection_statement'  => 'Surat Keberatan Profesional untuk audit 31 Desember 2024 tidak ada dikarenakan tahun 31 Desember 2023 diaudit oleh KAP Maurice Ganda Nainggolan dan Rekan dengan Maurice Ganda Nainggolan sebagai AP.',
         ]);
 
         // =====================================================
         // 1130A: INDEPENDENCE CHECKLIST
         // =====================================================
+        // 1130A answers — sesuai DOC asli: hanya Yes/No/NA per pertanyaan
         $seedAnswers('1130A', [
             'q1_independence_check'            => 'N',
             'q1_threats_uncovered'             => 'N',
             'q1_threats_resolved'              => 'NA',
             'q2_audit_committee_preapproval'   => 'Y',
-            'q2_comment'                       => 'Pre-approval telah diperoleh dari Komite Audit PT Indo American Seafoods Tbk.',
             'q3_consultation'                  => 'N',
-            'q3_comment'                       => 'Tidak ada isu independensi atau benturan kepentingan yang memerlukan konsultasi QA.',
             'q4_partner_rotation'              => 'N',
             'q4_cooling_period'                => 'NA',
             'q4_eqar_rotation'                 => 'N',
             'q4_eqar_cooling'                  => 'NA',
-            'q5_pep_check'                     => "1. Politically Exposed Person (PEP): Yes (H. Saimi Saleh - Mantan Anggota Legislatif/Tokoh Publik Daerah)\n2. High Risk Customers (HRC): No\n3. High Risk Business (HRB): No\n4. High Risk Countries (HRC): No",
-            'overall_conclusion'               => 'Seluruh prosedur independensi telah dilaksanakan dan dinyatakan bahwa KAP berada pada level independen yang memadai untuk melaksanakan audit PT Indo American Seafoods Tbk.',
+            'pep_status'                       => 'Y',
+            'hrc_status'                       => 'N',
+            'hrb_status'                       => 'N',
+            'countries_status'                 => 'N',
         ]);
 
         // =====================================================

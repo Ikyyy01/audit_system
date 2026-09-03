@@ -78,7 +78,6 @@ class AuditSystemSeeder extends Seeder
             ['code' => '1100', 'name' => 'Memo Penerimaan & Keberlanjutan Klien', 'form_type' => 'child'],
             ['code' => '1110', 'name' => 'Survey Klien', 'form_type' => 'child'],
             ['code' => '1120', 'name' => 'Surat Keberatan Professional', 'form_type' => 'child'],
-            ['code' => '1130', 'name' => 'Evaluasi Independensi', 'form_type' => 'parent'],
             ['code' => '1130A', 'name' => 'Independence Checklist & Conflict Check', 'form_type' => 'child'],
             ['code' => '1130B', 'name' => 'Cek Latar Belakang - First Pass Data', 'form_type' => 'child'],
             ['code' => '1130C', 'name' => 'Background Check - Pihak Berelasi & Profil', 'form_type' => 'child'],
@@ -137,8 +136,7 @@ class AuditSystemSeeder extends Seeder
         DB::table('audit_forms')->insert($forms);
 
         $formIds = DB::table('audit_forms')->pluck('id', 'code');
-        DB::table('audit_forms')->whereIn('code', ['1100', '1110', '1120', '1130', '1200', '1210', '1400', '1410', '1420', '1430', '1440', '1441', '1450', '1460', '1500', '1600', '1610', '1700', '1800', '1900'])->update(['parent_form_id' => $formIds['1000']]);
-        DB::table('audit_forms')->whereIn('code', ['1130A', '1130B', '1130C', '1130D'])->update(['parent_form_id' => $formIds['1130']]);
+        DB::table('audit_forms')->whereIn('code', ['1100', '1110', '1120', '1130A', '1130B', '1130C', '1130D', '1200', '1210', '1400', '1410', '1420', '1430', '1440', '1441', '1450', '1460', '1500', '1600', '1610', '1700', '1800', '1900'])->update(['parent_form_id' => $formIds['1000']]);
         DB::table('audit_forms')->whereIn('code', ['2100', '2110', '2200', '2300', '2400', '2410', '2420'])->update(['parent_form_id' => $formIds['2000']]);
         DB::table('audit_forms')->where('code', '3100')->update(['parent_form_id' => $formIds['3000']]);
         DB::table('audit_forms')->whereIn('code', ['4100', '4200', '4300', '4400'])->update(['parent_form_id' => $formIds['4000']]);
@@ -181,7 +179,8 @@ class AuditSystemSeeder extends Seeder
 
         $fields1110 = [
             ['name' => 'date_of_survey', 'label' => 'Date of Survey', 'type' => 'date'],
-            ['name' => 'venue_and_time', 'label' => 'Venue and Time', 'type' => 'text'],
+            ['name' => 'venue', 'label' => 'Venue', 'type' => 'text'],
+            ['name' => 'survey_time', 'label' => 'Time (From - To)', 'type' => 'time_range'],
             ['name' => 'attendants', 'label' => 'Attendants (Daftar hadir peserta survey)', 'type' => 'textarea'],
             ['name' => 'legal_name', 'label' => 'Legal Name', 'type' => 'text'],
             ['name' => 'scope_of_engagement', 'label' => 'Scope of the Engagement', 'type' => 'text'],
@@ -217,61 +216,5 @@ class AuditSystemSeeder extends Seeder
                 'updated_at' => $now,
             ]);
         }
-
-        // ----------------------------------------------------
-        // SEED SECTIONS & FIELDS: FORM 1130 (EVALUASI INDEPENDENSI)
-        // Sumber: 1130 A. Independence Checklist + 1200 Konfirmasi
-        // ----------------------------------------------------
-        $form1130Id = $formIds['1130'];
-
-        $sec1130_1 = DB::table('audit_form_sections')->insertGetId([
-            'form_id' => $form1130Id,
-            'section_name' => 'Evaluasi Ancaman Independensi Tim Perikatan',
-            'section_order' => 1,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
-
-        DB::table('audit_form_fields')->insert([
-            [
-                'section_id' => $sec1130_1,
-                'field_name' => 'financial_interest',
-                'field_label' => 'Apakah ada anggota tim yang memiliki kepentingan keuangan langsung pada klien?',
-                'field_type' => 'dropdown',
-                'is_required' => true,
-                'field_order' => 1,
-                'options_json' => json_encode([
-                    ['value' => 'Tidak Ada', 'label' => 'Tidak Ada'],
-                    ['value' => 'Ada', 'label' => 'Ada (Jelaskan di Catatan)'],
-                ]),
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'section_id' => $sec1130_1,
-                'field_name' => 'family_relationship',
-                'field_label' => 'Apakah ada hubungan keluarga dekat antara tim audit dan pejabat kunci klien?',
-                'field_type' => 'dropdown',
-                'is_required' => true,
-                'field_order' => 2,
-                'options_json' => json_encode([
-                    ['value' => 'Tidak Ada', 'label' => 'Tidak Ada'],
-                    ['value' => 'Ada', 'label' => 'Ada (Jelaskan di Catatan)'],
-                ]),
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'section_id' => $sec1130_1,
-                'field_name' => 'independence_conclusion',
-                'field_label' => 'Kesimpulan Independensi Tim Audit',
-                'field_type' => 'textarea',
-                'is_required' => true,
-                'field_order' => 3,
-                'options_json' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-        ]);
     }
 }

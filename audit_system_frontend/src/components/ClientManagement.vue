@@ -137,8 +137,8 @@ onMounted(fetchClients);
                             <td><span :class="['badge-client-type', c.client_type === 'TBK' ? 'badge-client-type--tbk' : 'badge-client-type--non-tbk']">{{ c.client_type }}</span></td>
                             <td>{{ c.address || '-' }}</td>
                             <td>
-                                <button class="btn-sm" @click="openEditModal(c)">Edit</button>
-                                <button class="btn-sm danger" @click="deleteClient(c.id)">Hapus</button>
+                                <button class="btn-action btn-action-edit" @click="openEditModal(c)">Edit</button>
+                                <button class="btn-action btn-action-danger" @click="deleteClient(c.id)">Hapus</button>
                             </td>
                         </tr>
                         <tr v-if="clients.length === 0">
@@ -188,12 +188,44 @@ th { background: var(--surface); padding: 1rem; text-align: left; font-size: 0.8
 td { padding: 1rem; border-bottom: 1px solid var(--surface-border); }
 .empty { text-align: center; color: #95a5a6; padding: 2rem; }
 
-.btn { padding: 0.6rem 1.2rem; border-radius: 4px; font-weight: bold; cursor: pointer; border: none; }
-.btn.primary { background: var(--orange-600); color: white; }
+.btn { padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; cursor: pointer; border: none; }
+.btn.primary { background: var(--orange-600); color: #ffffff !important; }
 .btn.primary:hover { background: var(--orange-600-hover); }
-.btn.secondary { background: var(--surface); color: var(--ink-900); }
-.btn-sm { padding: 0.3rem 0.6rem; border-radius: 3px; border: 1px solid #ccc; background: #fff; cursor: pointer; margin-right: 0.3rem; }
-.btn-sm.danger { color: var(--status-overdue); border-color: var(--status-overdue); }
+.btn.secondary { background: #e2e8f0; color: #334155 !important; border: 1px solid #cbd5e1; }
+
+.btn-action {
+    display: inline-block;
+    padding: 0.35rem 0.65rem;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-right: 0.35rem;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
+}
+
+.btn-action-edit {
+    background: #eff6ff;
+    color: #1d4ed8 !important;
+    border: 1px solid #bfdbfe;
+}
+.btn-action-edit:hover {
+    background: #dbeafe;
+    color: #1e40af !important;
+    border-color: #93c5fd;
+}
+
+.btn-action-danger {
+    background: #fef2f2;
+    color: #dc2626 !important;
+    border: 1px solid #fecaca;
+}
+.btn-action-danger:hover {
+    background: #fee2e2;
+    color: #991b1b !important;
+    border-color: #f87171;
+}
 
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 100; }
 .modal-box { width: 450px; padding: 2rem; background: white; }

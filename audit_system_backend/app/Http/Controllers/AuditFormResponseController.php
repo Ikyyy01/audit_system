@@ -112,7 +112,7 @@ class AuditFormResponseController extends Controller
         ]);
 
         $phpWord = new PhpWord;
-        $phpWord->setDefaultFontName('Calibri');
+        $phpWord->setDefaultFontName('Arial');
         $phpWord->setDefaultFontSize(10);
 
         $docSection = $phpWord->addSection(['marginLeft' => 900, 'marginRight' => 900]);
@@ -120,6 +120,23 @@ class AuditFormResponseController extends Controller
         // Watermark: dokumen belum final selama status != approved, biar nggak
         // ketuker sama laporan resmi kalau nyasar ke tangan yang salah.
         $isFinal = $auditFormResponse->status === 'approved';
+
+        // Resolve logo path — coba beberapa lokasi, fallback ke teks jika tidak ada
+        $logoPath = $this->findLogoPath();
+
+        // Header: logo KAP MGN (muncul di setiap halaman) + watermark jika belum final
+        $header = $docSection->addHeader();
+
+        if ($logoPath && file_exists($logoPath) && is_file($logoPath)) {
+            try {
+                $header->addImage($logoPath, ['width' => 80, 'height' => 40, 'alignment' => 'left']);
+            } catch (\Throwable $e) {
+                $header->addText($this->safeText('KAP MGN & REKAN'), ['bold' => true, 'size' => 9, 'color' => '7F8C8D'], ['alignment' => 'left']);
+            }
+        } else {
+            $header->addText($this->safeText('KAP MGN & REKAN'), ['bold' => true, 'size' => 9, 'color' => '7F8C8D'], ['alignment' => 'left']);
+        }
+
         if (! $isFinal) {
             $statusLabelMap = [
                 'draft' => 'DRAFT',
@@ -129,9 +146,10 @@ class AuditFormResponseController extends Controller
             ];
             $watermarkText = $statusLabelMap[$auditFormResponse->status] ?? 'DRAFT — BELUM DISETUJUI';
 
-            $header = $docSection->addHeader();
-            $header->addText($this->safeText($watermarkText), ['bold' => true, 'size' => 9, 'color' => 'B0503F'], ['alignment' => 'center']);
+            // Watermark di bawah logo di header
+            $header->addText($this->safeText($watermarkText), ['bold' => true, 'size' => 8, 'color' => 'B0503F'], ['alignment' => 'center']);
 
+            // Footer: hanya jika belum final
             $footer = $docSection->addFooter();
             $footer->addText($this->safeText($watermarkText.' — Dokumen ini belum final dan tidak boleh digunakan sebagai laporan resmi'), ['size' => 7, 'italic' => true, 'color' => 'B0503F'], ['alignment' => 'center']);
 
@@ -139,6 +157,7 @@ class AuditFormResponseController extends Controller
             $docSection->addTextBreak(1);
         }
 
+        // Judul form di body
         $docSection->addText($this->safeText('KAP MGN & REKAN'), ['bold' => true, 'size' => 11, 'color' => '7F8C8D']);
         $docSection->addText($this->safeText($auditFormResponse->form?->name ?? 'FORM AUDIT'), ['bold' => true, 'size' => 14]);
         $docSection->addTextBreak(1);
@@ -226,8 +245,12 @@ class AuditFormResponseController extends Controller
                         $aCell->addText('-', ['size' => 9]);
                     }
                 } else {
-                    // Field biasa
-                    $displayValue = $rawValue === null || $rawValue === '' ? '-' : ($friendlyValueMap[$rawValue] ?? $rawValue);
+                    // Field biasa — time_range diformat sebagai "Pukul HH:mm s/d HH:mm"
+                    if ($field->field_type === 'time_range' && $rawValue) {
+                        $displayValue = 'Pukul '.$rawValue;
+                    } else {
+                        $displayValue = $rawValue === null || $rawValue === '' ? '-' : ($friendlyValueMap[$rawValue] ?? $rawValue);
+                    }
                     foreach (explode("\n", $displayValue) as $vline) {
                         $aCell->addText($this->safeText($vline), ['size' => 9]);
                     }
@@ -823,5 +846,22 @@ class AuditFormResponseController extends Controller
             'signature_url' => Storage::disk('public')->url($path),
             'signature_uploaded_at' => $auditFormResponse->fresh()->signature_uploaded_at,
         ]);
+    }
+
+    private function findLogoPath(): ?string
+    {
+        $candidates = [
+            public_path('images/logo-mgn-utama.png'),
+            base_path('../audit_system_frontend/public/logo-mgn-utama.png'),
+            storage_path('app/logo-mgn-utama.png'),
+        ];
+
+        foreach ($candidates as $path) {
+            if (file_exists($path)) {
+                return $path;
+            }
+        }
+
+        return null;
     }
 }
