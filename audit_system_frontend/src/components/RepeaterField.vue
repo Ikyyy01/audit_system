@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
+import { evalFormula as evalFormulaShared, formatNumber, parseNumber } from '../lib/formula';
 
 interface ColumnDef {
     key: string;
@@ -7,10 +8,13 @@ interface ColumnDef {
     type?: string;
     width?: string;
     options?: { value: string; label: string }[];
+    readonly?: boolean;    // kolom hanya bisa dilihat (read-only), nilainya dipasok dari luar
     // Kolom turunan (read-only, dihitung otomatis, TIDAK diisi manual):
     formula?: string;      // ekspresi aritmatika antar-kolom di baris yang sama, mis. "jumlah_lembar * __multiplier__"
     percent_of?: string;   // key kolom lain — nilai cell ini = (kolom_itu / SUM(kolom_itu semua baris)) x 100%
     total?: boolean;       // tampilkan SUM kolom ini di baris Total footer
+    total_label?: string; // custom label baris total (misal "Total Assets")
+    prefix?: string;       // prefix tampilan (misal "Rp")
     multiplier?: {         // setting pengali yang bisa diatur auditor di atas tabel
         source: string;    // key kolom sumber (mis. "jumlah_lembar")
         label: string;     // label input, mis. "Nilai per Lembar (IDR)"
@@ -22,6 +26,12 @@ const props = defineProps<{
     modelValue: any;
     columns: ColumnDef[];
     editable?: boolean;
+    responseId?: number | null;
+    fieldId?: number;
+    disableAdd?: boolean;
+    disableRemove?: boolean;
+    /** 'table' = layout tabel horizontal (default), 'stacked' = card vertikal per baris */
+    mode?: 'table' | 'stacked';
 }>();
 
 const emit = defineEmits<{
@@ -91,6 +101,81 @@ function emitChange() {
     emit('update:modelValue', JSON.stringify(localRows.value));
 }
 
+// ── Upload file per cell (col.type === 'file') ──
+const cellFileInput = ref<HTMLInputElement | null>(null);
+const uploadingRowIndex = ref<number | null>(null);
+const uploadingColKey = ref<string | null>(null);
+const activeUploadRowIndex = ref<number | null>(null);
+const activeUploadColKey = ref<string | null>(null);
+
+function triggerCellFileInput(rowIndex: number, colKey: string) {
+    if (!isEditable.value) return;
+    activeUploadRowIndex.value = rowIndex;
+    activeUploadColKey.value = colKey;
+    cellFileInput.value?.click();
+}
+
+function cellFileUrl(path: any): string {
+    if (!path) return '';
+    return `/storage/${path}`;
+}
+
+function cellFileName(path: any): string {
+    if (!path) return '';
+    const parts = String(path).split('/');
+    return parts[parts.length - 1];
+}
+
+async function handleCellFileChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const rIdx = activeUploadRowIndex.value;
+    const colKey = activeUploadColKey.value;
+    activeUploadRowIndex.value = null;
+    activeUploadColKey.value = null;
+
+    if (!input.files || input.files.length === 0 || rIdx === null || !colKey || !props.responseId || !props.fieldId) {
+        return;
+    }
+
+    const file = input.files[0];
+    input.value = '';
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('field_id', String(props.fieldId));
+    formData.append('row_index', String(rIdx));
+
+    uploadingRowIndex.value = rIdx;
+    uploadingColKey.value = colKey;
+
+    try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`/api/v1/audit-form-responses/${props.responseId}/repeater-cell-upload`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/json',
+            },
+            body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            alert(data.message || 'Gagal mengunggah file.');
+            return;
+        }
+        if (localRows.value[rIdx]) {
+            localRows.value[rIdx][colKey] = data.path;
+            emitChange();
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Terjadi kesalahan jaringan saat mengunggah file.');
+    } finally {
+        uploadingRowIndex.value = null;
+        uploadingColKey.value = null;
+    }
+}
+
 function addRow() {
     const newRow: Record<string, any> = {};
     for (const col of props.columns) {
@@ -123,31 +208,15 @@ function handleInput() {
 }
 
 const isEditable = computed(() => props.editable !== false);
+const isActionVisible = computed(() => isEditable.value && !props.disableRemove);
+const isAddVisible = computed(() => isEditable.value && !props.disableAdd);
+const isStacked = computed(() => props.mode === 'stacked');
 
-// Evaluator aritmatika sederhana & aman (bukan eval bebas) — cuma dipakai buat
-// kolom formula yang expression-nya didefinisikan di database (options_json),
-// bukan input user, jadi aman dari injeksi.
+// Evaluator formula dipindah ke src/lib/formula.ts (dipakai bareng WorksheetTable.vue)
+// biar gak ada 2 implementasi yang bisa divergen. Wrapper tipis di sini cuma
+// buat nyuntik multiplierValue lokal komponen ini.
 function evalFormula(expr: string, row: Record<string, any>): number {
-    const tokens = expr.match(/[a-zA-Z_][a-zA-Z0-9_]*|[-+*/().]|\d+(\.\d+)?/g) || [];
-    const resolved = tokens.map((t) => {
-        if (t === '__multiplier__') {
-            return String(Number(multiplierValue.value) || 0);
-        }
-        if (/^[a-zA-Z_]/.test(t)) {
-            const v = Number(row[t]);
-            return Number.isFinite(v) ? String(v) : '0';
-        }
-        return t;
-    });
-    const joined = resolved.join(' ');
-    if (!/^[\d\s+\-*/().]*$/.test(joined) || joined.trim() === '') return 0;
-    try {
-        // eslint-disable-next-line no-new-func
-        const result = Function(`"use strict"; return (${joined});`)();
-        return typeof result === 'number' && Number.isFinite(result) ? result : 0;
-    } catch {
-        return 0;
-    }
+    return evalFormulaShared(expr, row, Number(multiplierValue.value) || 0);
 }
 
 function columnTotal(key: string): number {
@@ -156,7 +225,12 @@ function columnTotal(key: string): number {
     if (col?.formula) {
         return localRows.value.reduce((sum, row) => sum + evalFormula(col.formula!, row), 0);
     }
-    return localRows.value.reduce((sum, row) => sum + (Number(row[key]) || 0), 0);
+    return localRows.value.reduce((sum, row) => {
+        // Jangan jumlahkan jika baris ini berlabel 'Total' untuk mencegah double counting jika data lama masih punya baris total
+        const firstVal = String(Object.values(row)[0] || '').toLowerCase().trim();
+        if (firstVal.startsWith('total')) return sum;
+        return sum + parseNumber(row[key]);
+    }, 0);
 }
 
 function cellDisplayValue(row: Record<string, any>, col: ColumnDef): string {
@@ -165,16 +239,25 @@ function cellDisplayValue(row: Record<string, any>, col: ColumnDef): string {
     }
     if (col.percent_of) {
         const total = columnTotal(col.percent_of);
-        const value = Number(row[col.percent_of]) || 0;
+        const value = parseNumber(row[col.percent_of]);
         if (total === 0) return '0%';
         return (value / total * 100).toFixed(2) + '%';
     }
-    return row[col.key] || '-';
+    const val = row[col.key];
+    if (val === undefined || val === null || val === '') return '-';
+    // Jika kolom total dan isian berupa angka murni tanpa format, tampilkan format rapi
+    if (col.total && typeof val === 'number') {
+        return formatNumber(val);
+    }
+    return String(val);
 }
 
-function formatNumber(value: number): string {
-    return value.toLocaleString('id-ID', { maximumFractionDigits: 2 });
-}
+const totalRowLabel = computed(() => {
+    for (const col of props.columns) {
+        if (col.total_label) return col.total_label;
+    }
+    return 'Total Assets';
+});
 
 const hasTotalRow = computed(() => props.columns.some(c => c.total) && localRows.value.length > 0);
 </script>
@@ -201,7 +284,7 @@ const hasTotalRow = computed(() => props.columns.some(c => c.total) && localRows
             <span class="multiplier-label">{{ multiplierConfig.label }}</span>
             <span class="multiplier-value-display">Rp {{ Number(multiplierValue).toLocaleString('id-ID') }} / lembar</span>
         </div>
-        <div class="repeater-table-wrapper">
+        <div class="repeater-table-wrapper" v-if="!isStacked">
             <table class="repeater-table">
                 <thead>
                     <tr>
@@ -210,26 +293,50 @@ const hasTotalRow = computed(() => props.columns.some(c => c.total) && localRows
                             v-for="col in columns"
                             :key="col.key"
                             :style="{ width: col.width || 'auto' }"
-                            :class="(col.formula || col.percent_of) ? 'col-formula-header' : 'col-editable-header'"
+                            :class="(col.formula || col.percent_of || col.readonly) ? 'col-formula-header' : 'col-editable-header'"
                         >
                             {{ col.label }}
                             <span v-if="col.formula || col.percent_of" class="formula-tag" title="Dihitung otomatis dari kolom lain">fx</span>
+                            <span v-else-if="col.readonly" class="formula-tag" title="Otomatis dari daftar nama">auto</span>
                             <span v-else-if="isEditable" class="editable-tag" title="Dapat diedit">✎</span>
                         </th>
-                        <th v-if="isEditable" class="col-action">Aksi</th>
+                        <th v-if="isActionVisible" class="col-action">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-if="localRows.length === 0">
-                        <td :colspan="columns.length + (isEditable ? 2 : 1)" class="empty-cell">
-                            Belum ada data. <span v-if="isEditable">Klik <strong>+ Tambah Baris</strong> di bawah untuk menambahkan.</span>
+                        <td :colspan="columns.length + (isActionVisible ? 2 : 1)" class="empty-cell">
+                            Belum ada data. <span v-if="isAddVisible">Klik <strong>+ Tambah Baris</strong> di bawah untuk menambahkan.</span>
                         </td>
                     </tr>
                     <tr v-for="(row, rIdx) in localRows" :key="rIdx">
                         <td class="col-num">{{ rIdx + 1 }}</td>
                         <td v-for="col in columns" :key="col.key">
-                            <template v-if="col.formula || col.percent_of">
-                                <span class="cell-formula">{{ cellDisplayValue(row, col) }}</span>
+                            <template v-if="col.formula || col.percent_of || col.readonly">
+                                <span class="cell-formula" :class="{ 'cell-text--readonly': col.readonly }">{{ cellDisplayValue(row, col) }}</span>
+                            </template>
+                            <template v-else-if="col.type === 'file'">
+                                <div class="cell-file-box">
+                                    <button
+                                        v-if="isEditable"
+                                        type="button"
+                                        class="btn-cell-upload"
+                                        :disabled="uploadingRowIndex === rIdx && uploadingColKey === col.key"
+                                        @click="triggerCellFileInput(rIdx, col.key)"
+                                    >
+                                        {{ (uploadingRowIndex === rIdx && uploadingColKey === col.key) ? 'Uploading...' : (row[col.key] ? 'Ganti' : 'Upload') }}
+                                    </button>
+                                    <a
+                                        v-if="row[col.key]"
+                                        :href="cellFileUrl(row[col.key])"
+                                        target="_blank"
+                                        class="cell-file-link"
+                                        title="Lihat file / paraf"
+                                    >
+                                        📎 {{ cellFileName(row[col.key]) }}
+                                    </a>
+                                    <span v-else-if="!isEditable" class="cell-text">-</span>
+                                </div>
                             </template>
                             <template v-else-if="isEditable">
                                 <select
@@ -243,6 +350,14 @@ const hasTotalRow = computed(() => props.columns.some(c => c.total) && localRows
                                         {{ opt.label }}
                                     </option>
                                 </select>
+                                <textarea
+                                    v-else-if="col.type === 'textarea'"
+                                    v-model="row[col.key]"
+                                    @input="handleInput"
+                                    class="cell-input cell-textarea"
+                                    rows="3"
+                                    :placeholder="col.label"
+                                ></textarea>
                                 <input
                                     v-else
                                     :type="col.type === 'number' ? 'number' : col.type === 'date' ? 'date' : 'text'"
@@ -253,11 +368,11 @@ const hasTotalRow = computed(() => props.columns.some(c => c.total) && localRows
                                     :placeholder="col.label"
                                 />
                             </template>
-                            <span v-else class="cell-text">
-                                {{ row[col.key] || '-' }}
+                            <span v-else class="cell-text" :class="{ 'cell-text--multiline': col.type === 'textarea' }">
+                                {{ cellDisplayValue(row, col) }}
                             </span>
                         </td>
-                        <td v-if="isEditable" class="col-action">
+                        <td v-if="isActionVisible" class="col-action">
                             <button
                                 type="button"
                                 class="btn-remove-row"
@@ -270,22 +385,143 @@ const hasTotalRow = computed(() => props.columns.some(c => c.total) && localRows
                     </tr>
                 </tbody>
                 <tfoot v-if="hasTotalRow">
-                    <tr>
+                    <tr class="repeater-total-row">
                         <td class="col-num total-label">&Sigma;</td>
-                        <td v-for="col in columns" :key="col.key">
-                            <strong v-if="col.total">{{ formatNumber(columnTotal(col.key)) }}</strong>
+                        <td v-for="(col, cIdx) in columns" :key="col.key">
+                            <template v-if="col.total">
+                                <strong><span class="total-currency">Rp </span>{{ formatNumber(columnTotal(col.key)) }}</strong>
+                            </template>
+                            <template v-else-if="cIdx === 0">
+                                <strong class="total-row-label">{{ totalRowLabel }}</strong>
+                            </template>
                         </td>
-                        <td v-if="isEditable" class="col-action"></td>
+                        <td v-if="isActionVisible" class="col-action"></td>
                     </tr>
                 </tfoot>
             </table>
         </div>
 
-        <div v-if="isEditable" class="repeater-footer">
+        <!-- Stacked Card Layout (Mode Kebawah / Per Baris Bertumpuk) -->
+        <div class="repeater-stacked-wrapper" v-else>
+            <div v-if="localRows.length === 0" class="empty-stacked">
+                Belum ada data. <span v-if="isAddVisible">Klik <strong>+ Tambah Item</strong> di bawah untuk menambahkan.</span>
+            </div>
+
+            <div
+                v-for="(row, rIdx) in localRows"
+                :key="rIdx"
+                class="stacked-item-card"
+            >
+                <div class="stacked-item-header">
+                    <span class="stacked-item-badge">#{{ rIdx + 1 }}</span>
+                    <button
+                        v-if="isActionVisible"
+                        type="button"
+                        class="btn-remove-row"
+                        @click="removeRow(rIdx)"
+                        title="Hapus Item"
+                    >
+                        &times;
+                    </button>
+                </div>
+
+                <div class="stacked-item-grid">
+                    <div
+                        v-for="col in columns"
+                        :key="col.key"
+                        class="stacked-field-group"
+                        :class="{
+                            'stacked-field-group--full': col.type === 'textarea' || (col.width && parseInt(col.width) >= 20),
+                            'stacked-field-group--compact': col.width && parseInt(col.width) < 10
+                        }"
+                    >
+                        <label class="stacked-field-label">
+                            {{ col.label }}
+                            <span v-if="col.formula || col.percent_of" class="formula-tag" title="Dihitung otomatis">fx</span>
+                            <span v-else-if="col.readonly" class="formula-tag" title="Otomatis">auto</span>
+                        </label>
+
+                        <div class="stacked-field-control">
+                            <template v-if="col.formula || col.percent_of || col.readonly">
+                                <span class="cell-formula cell-formula--stacked" :class="{ 'cell-text--readonly': col.readonly }">
+                                    {{ cellDisplayValue(row, col) }}
+                                </span>
+                            </template>
+                            <template v-else-if="col.type === 'file'">
+                                <div class="cell-file-box">
+                                    <button
+                                        v-if="isEditable"
+                                        type="button"
+                                        class="btn-cell-upload"
+                                        :disabled="uploadingRowIndex === rIdx && uploadingColKey === col.key"
+                                        @click="triggerCellFileInput(rIdx, col.key)"
+                                    >
+                                        {{ (uploadingRowIndex === rIdx && uploadingColKey === col.key) ? 'Uploading...' : (row[col.key] ? 'Ganti' : 'Upload') }}
+                                    </button>
+                                    <a
+                                        v-if="row[col.key]"
+                                        :href="cellFileUrl(row[col.key])"
+                                        target="_blank"
+                                        class="cell-file-link"
+                                        title="Lihat file / paraf"
+                                    >
+                                        📎 {{ cellFileName(row[col.key]) }}
+                                    </a>
+                                    <span v-else-if="!isEditable" class="cell-text">-</span>
+                                </div>
+                            </template>
+                            <template v-else-if="isEditable">
+                                <select
+                                    v-if="col.options && col.options.length > 0"
+                                    v-model="row[col.key]"
+                                    @change="handleInput"
+                                    class="cell-input"
+                                >
+                                    <option value="">-- Pilih --</option>
+                                    <option v-for="opt in col.options" :key="opt.value" :value="opt.value">
+                                        {{ opt.label }}
+                                    </option>
+                                </select>
+                                <textarea
+                                    v-else-if="col.type === 'textarea' || (col.width && parseInt(col.width) >= 15)"
+                                    v-model="row[col.key]"
+                                    @input="handleInput"
+                                    class="cell-input cell-textarea"
+                                    rows="2"
+                                    :placeholder="'Isi ' + col.label.toLowerCase() + '...'"
+                                ></textarea>
+                                <input
+                                    v-else
+                                    :type="col.type === 'number' ? 'number' : col.type === 'date' ? 'date' : 'text'"
+                                    step="any"
+                                    v-model="row[col.key]"
+                                    @input="handleInput"
+                                    class="cell-input"
+                                    :placeholder="col.label"
+                                />
+                            </template>
+                            <span v-else class="cell-text" :class="{ 'cell-text--multiline': col.type === 'textarea' }">
+                                {{ cellDisplayValue(row, col) }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="isAddVisible" class="repeater-footer">
             <button type="button" class="btn-add-row" @click="addRow">
                 + Tambah Baris
             </button>
         </div>
+
+        <input
+            ref="cellFileInput"
+            type="file"
+            accept=".pdf,.png,.jpg,.jpeg"
+            style="display: none"
+            @change="handleCellFileChange"
+        />
     </div>
 </template>
 
@@ -454,10 +690,52 @@ const hasTotalRow = computed(() => props.columns.some(c => c.total) && localRows
 .cell-formula {
     display: block;
     padding: 0.35rem 0.5rem;
-    font-size: 0.88rem;
     font-weight: 600;
-    color: var(--ink-900, #1e293b);
+    color: #1e293b;
+    font-variant-numeric: tabular-nums;
     text-align: right;
+}
+
+.cell-file-box {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.btn-cell-upload {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #334155;
+}
+
+.btn-cell-upload:hover:not(:disabled) {
+    background: #e2e8f0;
+}
+
+.btn-cell-upload:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.cell-file-link {
+    font-size: 0.78rem;
+    color: #0284c7;
+    text-decoration: none;
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+.cell-file-link:hover {
+    text-decoration: underline;
 }
 
 .repeater-table tfoot td {
@@ -523,5 +801,148 @@ const hasTotalRow = computed(() => props.columns.some(c => c.total) && localRows
 
 .btn-add-row:hover {
     background: #fff7ed;
+}
+
+.cell-text--readonly {
+    color: var(--ink-900, #0f172a);
+    font-weight: 600;
+    text-align: left;
+    display: inline-block;
+}
+
+.cell-textarea {
+    resize: vertical;
+    min-height: 68px;
+    font-family: inherit;
+    line-height: 1.45;
+    padding: 6px 8px;
+}
+
+.cell-text--multiline {
+    white-space: pre-wrap;
+    word-break: break-word;
+    display: block;
+    line-height: 1.45;
+    text-align: left;
+}
+
+.repeater-total-row {
+    background-color: #f1f5f9;
+    font-weight: 600;
+}
+
+.repeater-total-row td {
+    padding: 8px 10px !important;
+    border-top: 2px solid #cbd5e1;
+    border-bottom: 2px solid #cbd5e1;
+}
+
+.total-row-label {
+    color: var(--ink-900, #0f172a);
+    font-size: 0.88rem;
+    letter-spacing: 0.01em;
+}
+
+.total-currency {
+    color: #64748b;
+    font-weight: 500;
+    margin-right: 2px;
+}
+
+/* ── Stacked Mode (Card per Baris Kebawah) ── */
+.repeater-stacked-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 0.85rem;
+    background: #f8fafc;
+}
+
+.empty-stacked {
+    text-align: center;
+    padding: 1.5rem;
+    color: #94a3b8;
+    font-size: 0.88rem;
+    background: #fff;
+    border-radius: 6px;
+    border: 1px dashed #cbd5e1;
+}
+
+.stacked-item-card {
+    background: #fff;
+    border: 1px solid var(--surface-border, #e2e8f0);
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.stacked-item-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.stacked-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.85rem;
+    padding-bottom: 0.45rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.stacked-item-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.15rem 0.55rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--orange-600, #ea580c);
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 4px;
+}
+
+.stacked-item-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.75rem 1rem;
+}
+
+.stacked-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.stacked-field-group--full {
+    grid-column: 1 / -1;
+}
+
+.stacked-field-group--compact {
+    max-width: 160px;
+}
+
+.stacked-field-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.stacked-field-control {
+    width: 100%;
+}
+
+.cell-formula--stacked {
+    display: inline-block;
+    padding: 0.35rem 0.6rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    font-size: 0.85rem;
 }
 </style>

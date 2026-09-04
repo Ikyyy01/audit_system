@@ -28,6 +28,8 @@ Route::prefix('v1')->group(function (): void {
         Route::post('audit-form-responses/{auditFormResponse}/import-excel', [AuditFormResponseController::class, 'importExcel']);
         Route::get('audit-form-responses/{auditFormResponse}/export', [AuditFormResponseController::class, 'export']);
         Route::post('audit-form-responses/{auditFormResponse}/partner-notes', [AuditFormResponseController::class, 'savePartnerNotes']);
+        Route::post('audit-form-responses/{auditFormResponse}/fields/{fieldId}/upload', [AuditFormResponseController::class, 'uploadFieldFile']);
+        Route::post('audit-form-responses/{auditFormResponse}/repeater-cell-upload', [AuditFormResponseController::class, 'uploadRepeaterCellFile']);
 
         Route::middleware('role:Junior,Senior,Manager')
             ->post('audit-form-responses/{auditFormResponse}/submit', [AuditFormResponseController::class, 'submit']);

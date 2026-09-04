@@ -776,6 +776,113 @@ class AuditFormResponseController extends Controller
         return response()->json($auditFormResponse->fresh(['form', 'engagement', 'user', 'reviews', 'approvals']));
     }
 
+    /**
+     * Upload file untuk field bertipe 'file' pada form apapun (generik —
+     * bukan cuma tanda tangan Partner). Path file disimpan sebagai
+     * response_value field itu, sama seperti jawaban field lain.
+     */
+    public function uploadFieldFile(Request $request, AuditFormResponse $auditFormResponse, int $fieldId): JsonResponse
+    {
+        if (! in_array($auditFormResponse->status, ['draft', 'revision_required'], true)) {
+            throw ValidationException::withMessages([
+                'status' => 'File hanya bisa diupload saat status draft atau revision_required.',
+            ]);
+        }
+
+        $field = \App\Models\AuditFormField::findOrFail($fieldId);
+        if ($field->field_type !== 'file') {
+            throw ValidationException::withMessages([
+                'field' => 'Field ini bukan bertipe file upload.',
+            ]);
+        }
+
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx', 'max:10240'],
+        ]);
+
+        $uploaded = $request->file('file');
+        $path = $uploaded->store('form-attachments/'.$auditFormResponse->id, 'public');
+
+        // Hapus file lama kalau field ini sebelumnya udah pernah diisi (replace, bukan numpuk)
+        $existingAnswer = AuditFormAnswer::where('response_id', $auditFormResponse->id)->where('field_id', $fieldId)->first();
+        if ($existingAnswer?->response_value && Storage::disk('public')->exists($existingAnswer->response_value)) {
+            Storage::disk('public')->delete($existingAnswer->response_value);
+        }
+
+        AuditFormAnswer::updateOrCreate(
+            ['response_id' => $auditFormResponse->id, 'field_id' => $fieldId],
+            ['response_value' => $path]
+        );
+
+        ActivityLog::create([
+            'user_id' => $request->user()->id,
+            'action' => 'uploaded_file',
+            'entity_type' => 'audit_form_response',
+            'entity_id' => $auditFormResponse->id,
+            'description' => 'File diunggah untuk field "'.$field->field_label.'": '.$uploaded->getClientOriginalName(),
+            'created_at' => now(),
+        ]);
+
+        return response()->json([
+            'message' => 'File berhasil diunggah.',
+            'field_id' => $fieldId,
+            'path' => $path,
+            'url' => Storage::disk('public')->url($path),
+            'original_name' => $uploaded->getClientOriginalName(),
+        ]);
+    }
+
+    /**
+     * Upload file untuk satu cell di kolom bertipe 'file' dalam sebuah baris repeater.
+     * File disimpan di storage, path-nya dikembalikan ke frontend untuk disimpan
+     * di dalam JSON baris repeater (row[col.key] = path).
+     *
+     * POST /audit-form-responses/{response}/repeater-cell-upload
+     * Body (multipart): file (binary), field_id (int), row_index (int, hanya untuk
+     * path storage supaya teroganisir — bukan dipakai sebagai kunci DB).
+     */
+    public function uploadRepeaterCellFile(Request $request, AuditFormResponse $auditFormResponse): JsonResponse
+    {
+        if (! in_array($auditFormResponse->status, ['draft', 'revision_required'], true)) {
+            throw ValidationException::withMessages([
+                'status' => 'File hanya bisa diupload saat status draft atau revision_required.',
+            ]);
+        }
+
+        $request->validate([
+            'file'      => ['required', 'file', 'mimes:pdf,png,jpg,jpeg', 'max:5120'],
+            'field_id'  => ['required', 'integer'],
+            'row_index' => ['nullable', 'integer'],
+        ]);
+
+        $fieldId  = (int) $request->input('field_id');
+        $rowIndex = (int) ($request->input('row_index') ?? 0);
+
+        $field = \App\Models\AuditFormField::findOrFail($fieldId);
+
+        $uploaded = $request->file('file');
+        $path     = $uploaded->store(
+            "form-attachments/{$auditFormResponse->id}/{$field->field_name}/row-{$rowIndex}",
+            'public'
+        );
+
+        ActivityLog::create([
+            'user_id'     => $request->user()->id,
+            'action'      => 'uploaded_repeater_file',
+            'entity_type' => 'audit_form_response',
+            'entity_id'   => $auditFormResponse->id,
+            'description' => "File repeater diunggah: field \"{$field->field_label}\", baris {$rowIndex}: " . $uploaded->getClientOriginalName(),
+            'created_at'  => now(),
+        ]);
+
+        return response()->json([
+            'message'       => 'File berhasil diunggah.',
+            'path'          => $path,
+            'url'           => Storage::disk('public')->url($path),
+            'original_name' => $uploaded->getClientOriginalName(),
+        ]);
+    }
+
     public function savePartnerNotes(Request $request, AuditFormResponse $auditFormResponse): JsonResponse
     {
         if (! in_array($auditFormResponse->status, ['draft', 'revision_required'], true)) {

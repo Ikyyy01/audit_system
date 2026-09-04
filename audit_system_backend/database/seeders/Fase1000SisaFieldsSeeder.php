@@ -283,29 +283,35 @@ class Fase1000SisaFieldsSeeder extends Seeder
                 'title'  => 'Pemegang Saham (Stockholders)',
                 'fields' => [
                     [
-                        'name'    => 'stockholders_parent_background',
-                        'label'   => 'PT Indo American Seafoods ("Perusahaan") — Riwayat Pendirian & Perubahan Anggaran Dasar',
-                        'type'    => 'textarea',
+                        'name'     => 'stockholders_about',
+                        'label'    => 'Tentang',
+                        'type'     => 'textarea',
+                        'required' => false,
+                    ],
+                    [
+                        'name'     => 'stockholders_parent_background',
+                        'label'    => 'Riwayat Pendirian & Perubahan Anggaran Dasar',
+                        'type'     => 'textarea',
                         'required' => false,
                     ],
                     [
                         'name'    => 'stockholders_parent',
-                        'label'   => 'Susunan Pemegang Saham — PT Indo American Seafoods Tbk',
+                        'label'   => 'Susunan Pemegang Saham',
                         'type'    => 'repeater',
                         'options' => $stockholdersParentColumns,
                     ],
                     [
-                        'name'    => 'stockholders_subsidiary_background',
-                        'label'   => 'PT Indokom Samudra Persada ("ISP") — Riwayat Pendirian & Perubahan Anggaran Dasar',
-                        'type'    => 'textarea',
+                        'name'     => 'stockholders_subsidiary_background',
+                        'label'    => 'Riwayat Pendirian & Perubahan Anggaran Dasar (Entitas Anak)',
+                        'type'     => 'textarea',
                         'required' => false,
                     ],
                     [
-                        'name'    => 'stockholders_subsidiary',
-                        'label'   => 'Susunan Pemegang Saham — PT Indokom Samudra Persada (Entitas Anak)',
-                        'type'    => 'repeater',
+                        'name'     => 'stockholders_subsidiary',
+                        'label'    => 'Susunan Pemegang Saham (Entitas Anak)',
+                        'type'     => 'repeater',
                         'required' => false,
-                        'options' => $stockholdersSubsidiaryColumns,
+                        'options'  => $stockholdersSubsidiaryColumns,
                     ],
                 ],
             ],
@@ -344,35 +350,62 @@ class Fase1000SisaFieldsSeeder extends Seeder
         // =====================================================
         // FORM 1130C: BACKGROUND CHECK
         // Sumber: 1130 C. Background Check_PT IAS Tbk dan Entitas Anak_2024 Rev 1.docx
-        // Isi: Daftar nama yang dicari + hasil pencarian + riwayat singkat perusahaan
+        // Struktur dokumen asli:
+        //   1. Searched Names (daftar nama yang dicari — textarea, 1 per baris)
+        //   2. Results (nama-nama hasil pencarian + nomor identitas/ref + penjelasan
+        //      per nama — repeater)
+        //   3. PT Indo American Seafoods Tbk → Riwayat Singkat + Maksud & Tujuan
+        //   4. PT Indokom Samudra Persada (ISP) → Riwayat Singkat + Maksud & Tujuan
         // =====================================================
+        $searchedNamesColumns = json_encode([
+            ['key' => 'nama', 'label' => 'Nama Direksi / Komisaris / Entitas yang Diperiksa', 'type' => 'text', 'width' => '100%'],
+        ]);
+
+        $searchResultColumns = json_encode([
+            ['key' => 'nama', 'label' => 'Nama (Name)', 'type' => 'text', 'width' => '30%', 'readonly' => true],
+            ['key' => 'no_identitas', 'label' => 'No Identitas / Ref', 'type' => 'text', 'width' => '25%'],
+            ['key' => 'penjelasan', 'label' => 'Hasil / Penjelasan (Result)', 'type' => 'textarea', 'width' => '45%'],
+        ]);
+
         $seedForm('1130C', [
             [
                 'title'  => 'Background Check – Daftar Nama yang Diperiksa',
                 'fields' => [
                     [
-                        'name'  => 'searched_names',
-                        'label' => 'Daftar Nama yang Dicari (Searched Names) — tuliskan satu per baris nama direksi/komisaris/pemegang saham utama yang diperiksa latar belakangnya',
-                        'type'  => 'textarea',
+                        'name'    => 'searched_names',
+                        'label'   => 'Searched Names — Daftar Nama Direksi / Komisaris / Pemegang Saham Utama yang Diperiksa',
+                        'type'    => 'repeater',
+                        'options' => $searchedNamesColumns,
+                    ],
+                    [
+                        'name'    => 'search_results',
+                        'label'   => 'Results — Hasil Pencarian Latar Belakang per Nama',
+                        'type'    => 'repeater',
+                        'options' => $searchResultColumns,
                     ],
                 ],
             ],
             [
-                'title'  => 'Hasil Background Check',
+                'title'  => 'Profil Perusahaan dan Entitas Anak',
                 'fields' => [
                     [
-                        'name'  => 'search_results',
-                        'label' => 'Hasil Pencarian / Search Results — dokumentasikan temuan per nama yang diperiksa (termasuk ketidakhadiran temuan negatif)',
+                        'name'  => 'ias_company_background',
+                        'label' => 'Riwayat Singkat Entitas Induk (tanggal & dasar pendirian, pengesahan Menkumham, perubahan anggaran dasar)',
                         'type'  => 'textarea',
                     ],
                     [
-                        'name'  => 'company_background',
-                        'label' => 'Riwayat Singkat Perusahaan — dokumentasikan profil singkat entitas utama dan entitas anak yang relevan',
+                        'name'  => 'ias_business_purpose',
+                        'label' => 'Maksud dan Tujuan serta Kegiatan Usaha (Entitas Induk)',
                         'type'  => 'textarea',
                     ],
                     [
-                        'name'  => 'business_purpose',
-                        'label' => 'Maksud dan Tujuan serta Kegiatan Usaha — uraikan bidang usaha utama entitas dan entitas anak',
+                        'name'  => 'isp_company_background',
+                        'label' => 'Riwayat Singkat Entitas Anak (tanggal & dasar pendirian, pengesahan Menkumham, perubahan anggaran dasar)',
+                        'type'  => 'textarea',
+                    ],
+                    [
+                        'name'  => 'isp_business_purpose',
+                        'label' => 'Maksud dan Tujuan serta Kegiatan Usaha (Entitas Anak)',
                         'type'  => 'textarea',
                     ],
                     [
@@ -388,39 +421,30 @@ class Fase1000SisaFieldsSeeder extends Seeder
         // =====================================================
         // FORM 1130D: ENTITIES TREE / STRUKTUR KEPEMILIKAN
         // Sumber: 1130 D. Entities Tree PT IAS 2024 Rev 1.docx
-        // Isi: Dokumentasi struktur pemegang saham / UBO (Ultimate Beneficial Owner)
+        // Isi: Diagram struktur kepemilikan (edge-list) & UBO
         // =====================================================
+        $treeColumns = json_encode([
+            ['key' => 'pemilik', 'label' => 'Pemegang Saham / Entitas', 'type' => 'text', 'width' => '40%'],
+            ['key' => 'dimiliki', 'label' => 'Kepemilikan Pada', 'type' => 'text', 'width' => '40%'],
+            ['key' => 'persentase', 'label' => '% Kepemilikan', 'type' => 'number', 'width' => '20%'],
+        ]);
+
         $seedForm('1130D', [
             [
-                'title'  => 'Entities Tree – Struktur Kepemilikan',
+                'title'  => 'Entities Tree — Struktur Kepemilikan',
                 'fields' => [
                     [
-                        'name'  => 'ubo_name',
-                        'label' => 'Pengendali Terakhir / Ultimate Beneficial Owner (UBO) — nama individu atau entitas yang menjadi pengendali akhir perusahaan',
-                        'type'  => 'text',
+                        'name'        => 'ubo_name',
+                        'label'       => 'Pengendali Terakhir (Ultimate Beneficial Owner / UBO)',
+                        'type'        => 'text',
+                        'is_required' => true,
                     ],
                     [
-                        'name'  => 'ownership_structure',
-                        'label' => 'Struktur Kepemilikan / Entities Tree — gambarkan rantai kepemilikan dari UBO hingga entitas yang diaudit beserta persentase kepemilikan di tiap level (format teks atau deskripsi diagram)',
-                        'type'  => 'textarea',
-                    ],
-                    [
-                        'name'     => 'subsidiaries_detail',
-                        'label'    => 'Detail Entitas Anak dalam Struktur (nama, domisili, % kepemilikan langsung)',
-                        'type'     => 'textarea',
-                        'required' => false,
-                    ],
-                    [
-                        'name'     => 'ownership_changes',
-                        'label'    => 'Perubahan Struktur Kepemilikan pada Periode Ini (jika ada)',
-                        'type'     => 'textarea',
-                        'required' => false,
-                    ],
-                    [
-                        'name'     => 'conclusion',
-                        'label'    => 'Kesimpulan — konfirmasi apakah struktur kepemilikan sudah terdokumentasi dengan lengkap dan UBO sudah teridentifikasi',
-                        'type'     => 'textarea',
-                        'required' => false,
+                        'name'        => 'entities_tree',
+                        'label'       => 'Struktur Kepemilikan (Entities Tree) — dari pemegang saham hingga entitas yang diaudit',
+                        'type'        => 'repeater',
+                        'is_required' => true,
+                        'options'     => $treeColumns,
                     ],
                 ],
             ],

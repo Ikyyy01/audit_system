@@ -62,14 +62,22 @@ class Form1130BStockholdersFixSeeder extends Seeder
         $stockholdersParentColumns = json_encode([
             ['key' => 'nama', 'label' => 'Name', 'type' => 'text', 'width' => '35%'],
             ['key' => 'jumlah_lembar', 'label' => 'Number of shares', 'type' => 'number', 'width' => '20%'],
-            ['key' => 'nilai_rp', 'label' => 'In IDR', 'type' => 'number', 'width' => '25%', 'total' => true],
+            [
+                'key' => 'nilai_rp', 'label' => 'In IDR', 'type' => 'number', 'width' => '25%', 'total' => true,
+                'formula' => 'jumlah_lembar * __multiplier__',
+                'multiplier' => ['source' => 'jumlah_lembar', 'label' => 'Nilai per Lembar (IDR)', 'default' => 50],
+            ],
             ['key' => 'persentase', 'label' => '% of ownership', 'width' => '15%', 'percent_of' => 'jumlah_lembar'],
         ]);
 
         $stockholdersSubsidiaryColumns = json_encode([
             ['key' => 'nama', 'label' => 'Name', 'type' => 'text', 'width' => '35%'],
             ['key' => 'jumlah_saham', 'label' => 'Number of shares', 'type' => 'number', 'width' => '20%'],
-            ['key' => 'nilai_rp', 'label' => 'In IDR', 'type' => 'number', 'width' => '25%', 'total' => true],
+            [
+                'key' => 'nilai_rp', 'label' => 'In IDR', 'type' => 'number', 'width' => '25%', 'total' => true,
+                'formula' => 'jumlah_saham * __multiplier__',
+                'multiplier' => ['source' => 'jumlah_saham', 'label' => 'Nilai per Lembar (IDR)', 'default' => 1000000],
+            ],
             ['key' => 'persentase', 'label' => '% of ownership', 'width' => '15%', 'percent_of' => 'jumlah_saham'],
         ]);
 
@@ -138,6 +146,12 @@ class Form1130BStockholdersFixSeeder extends Seeder
                         ['nama' => 'Ibnu Syena Alfitra', 'jumlah_saham' => 400],
                     ]), 'created_at' => $now, 'updated_at' => $now]
                 );
+
+                // Item 7 (directors_commissioners), 8 (subsidiaries), 9 (investments):
+                // SENGAJA TIDAK ditangani di sini. Form1130BExcelSyncSeeder (jalan
+                // setelah seeder ini di DatabaseSeeder) sudah menangani ketiganya
+                // dengan kolom & data yang dicocokkan persis ke Excel sumber —
+                // ditulis dobel di sini cuma bikin 2 seeder rebutan field yang sama.
             }
         }
 

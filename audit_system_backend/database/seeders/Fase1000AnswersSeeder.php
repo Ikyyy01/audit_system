@@ -109,47 +109,89 @@ class Fase1000AnswersSeeder extends Seeder
 
         // =====================================================
         // 1110: SURVEY KLIEN
+        // Sumber: 1110 Survey Klien IAS 2024 Rev 1.docx
+        // Nilai verbatim dari dokumen Word asli:
+        // - Name of Shareholders: HANYA ada Nama & % Kepemilikan (tidak ada jumlah lembar / nilai)
         // =====================================================
         $seedAnswers('1110', [
-            'date_of_survey'              => '2024-10-09',
-            'venue'                       => 'Kantor PT Indo American Seafoods Tbk, Jl. Ir. Sutami Km. 13 Lampung Selatan',
-            'time_range'                  => '09:00 - 12:00',
-            'attendants'                  => "1. Maurice Ganda Nainggolan (Partner KAP)\n2. Kenny Nurardi Wijaya (Audit Manager)\n3. Ibnu Syena Alfitra (Direktur Utama IAS)\n4. Abu Yazid (Direktur Keuangan IAS)",
+            'date_of_survey'              => '2024-10-18',
+            'venue'                       => 'PT Indo American Seafoods Tbk dan Entitas Anak',
+            'survey_time'                  => '09:00 - 12:00',
+            'attendants'                  => json_encode([
+                ['nama' => 'Saimi Saleh', 'jabatan' => 'Komisaris (UOB "Ultimate Beneficial Owner")'],
+                ['nama' => 'Ibnu Syena Alfitra', 'jabatan' => 'Direktur Utama PT Indo American Seafoods'],
+                ['nama' => 'Maurice Ganda', 'jabatan' => 'Partner Incharge KAP MGN & Rekan'],
+                ['nama' => 'Kenny Nurardi Wijaya', 'jabatan' => 'Manager KAP MGN & Rekan'],
+                ['nama' => 'Netty Lidya Simanjuntak', 'jabatan' => 'Senior KAP MGN & Rekan'],
+                ['nama' => 'Raynaldi Tribuana', 'jabatan' => 'Senior KAP MGN & Rekan'],
+                ['nama' => 'Daniel Gerald H', 'jabatan' => 'Junior KAP MGN & Rekan'],
+                ['nama' => 'Aryn Sasikirana', 'jabatan' => 'Junior KAP MGN & Rekan'],
+                ['nama' => 'Kurotun Ainiyah', 'jabatan' => 'Junior KAP MGN & Rekan'],
+                ['nama' => 'Irene Rizka Amalia', 'jabatan' => 'Junior KAP MGN & Rekan'],
+            ]),
             'legal_name'                  => 'PT Indo American Seafoods Tbk dan Entitas Anak',
-            'scope_of_engagement'         => 'Audit Umum atas Laporan Keuangan Konsolidasian untuk tahun yang berakhir 31 Desember 2024',
-            'financial_accounting_standard' => 'SAK Umum berbasis IFRS/PSAK (termasuk PSAK 69 Aset Biologis, PSAK 73 Sewa)',
-            'deliverables'                => 'Laporan Auditor Independen (LAI) dan Management Letter',
-            'objectives'                  => "Menyatakan pendapat atas kewajaran Laporan Keuangan Konsolidasian sesuai SAK yang berlaku\nMemberikan keyakinan memadai bahwa LK bebas dari salah saji material akibat kecurangan atau kekeliruan",
+            'scope_of_engagement'         => 'General Audit 31 Desember 2024',
+            'financial_accounting_standard'=> 'Indonesian Financial Accounting Standard (Standar Akuntansi Keuangan di Indonesia)',
+            'deliverables'                => 'Laporan Auditor Independen',
+            'objectives'                  => 'Perusahaan menunjuk KAP MGN dan Rekan untuk melakukan audit atas laporan keuangan untuk tahun yang berakhir 31 Desember 2024 yang akan digunakan untuk pelaporan laporan keuangan tahunan serta kepada investor',
             'name_of_shareholders'        => json_encode([
-                ['nama' => 'PT Indo American Food', 'persentase' => '69.24', 'jumlah_lembar' => '962.500.000 lembar', 'nilai_nominal' => 'Rp 48.125.000.000'],
-                ['nama' => 'Saimi Saleh',           'persentase' => '5.94',  'jumlah_lembar' => '82.500.000 lembar',  'nilai_nominal' => 'Rp 4.125.000.000'],
-                ['nama' => 'Ibnu Syena Alfitra',    'persentase' => '3.96',  'jumlah_lembar' => '55.000.000 lembar',  'nilai_nominal' => 'Rp 2.750.000.000'],
-                ['nama' => 'Masyarakat (< 5%)',     'persentase' => '20.86', 'jumlah_lembar' => '290.000.000 lembar', 'nilai_nominal' => 'Rp 14.500.000.000'],
+                ['nama' => 'PT Indo American Foods Tbk dan Entitas Anak', 'persentase' => '69,24%'],
+                ['nama' => 'Saimi Saleh', 'persentase' => '5,94%'],
+                ['nama' => 'Ibnu Syena Alfitra', 'persentase' => '3,96%'],
+                ['nama' => 'Masyarakat', 'persentase' => '20,86%'],
             ]),
             'name_of_management'          => json_encode([
-                ['jabatan' => 'Direktur Utama',           'nama' => 'Ibnu Syena Alfitra'],
-                ['jabatan' => 'Direktur Operasional',     'nama' => 'Ibnu Surya Ramadhan'],
-                ['jabatan' => 'Direktur Keuangan',        'nama' => 'Abu Yazid'],
-                ['jabatan' => 'Komisaris Utama',          'nama' => 'Saimi Saleh'],
-                ['jabatan' => 'Komisaris Independen',     'nama' => 'Dr. Leo Herlambang'],
+                ['jabatan' => 'Komisaris', 'nama' => 'Saimi Saleh'],
+                ['jabatan' => 'Komisaris Independen', 'nama' => 'Leo Herlambang'],
+                ['jabatan' => 'Direktur Utama', 'nama' => 'Ibnu Syena Alfitra'],
+                ['jabatan' => 'Direktur', 'nama' => 'Ibnu Surya Ramadhan'],
+                ['jabatan' => 'Direktur', 'nama' => 'Abu Yazid'],
             ]),
-            'ultimate_shareholder'        => 'H. Saimi Saleh melalui PT Indo American Food (Holding) — kepemilikan efektif ≥ 75% (langsung + tidak langsung)',
-            'business_activity'           => "Industri Pengolahan dan Pembekuan Udang (Cold Storage & Processing)\nBudidaya tambak udang (Aset Biologis) → Ekspor ke Amerika Serikat, Jepang, dan Eropa",
-            'reporting_currency'          => 'IDR (Rupiah Indonesia) — penjualan ekspor dalam USD dan dikonversi ke IDR',
+            'ultimate_shareholder'        => 'Pengendali terakhir PT Indo American Foods Tbk dan Entitas Anak adalah Saimi Saleh.',
+            'business_activity'           => "Kegiatan utama Perusahaan adalah di bidang makanan yaitu pengolahan udang.\nPerusahaan ini berdiri sejak tahun 2006.",
+            'reporting_currency'          => 'IDR',
+            'total_assets_period'         => 'September 30, 2024',
             'total_assets'                => json_encode([
-                ['kategori' => 'Current Assets',     'nilai' => 'Rp 327.320.715.715'],
-                ['kategori' => 'Non-Current Assets', 'nilai' => 'Rp 96.547.095.481'],
-                ['kategori' => 'Total Assets',       'nilai' => 'Rp 423.867.811.196'],
+                ['kategori' => 'Current Assets', 'nilai' => 330321157819],
+                ['kategori' => 'Non-Current Assets', 'nilai' => 77792508860],
             ]),
-            'total_revenues'              => 'Pendapatan Penjualan: Rp 160.540.499.628 (Tahun 2024)',
-            'main_customers_vendors'      => json_encode([
-                ['nama' => 'Importir/distributor udang beku — Amerika Serikat, Jepang, Eropa', 'tipe' => 'Customer', 'keterangan' => 'Pelanggan utama'],
-                ['nama' => 'Pemasok benur dan pakan udang lokal Lampung',                      'tipe' => 'Vendor',   'keterangan' => 'Vendor utama'],
+            'total_revenues'              => 'Rp 160.540.499.628',
+            'main_customers'              => json_encode([
+                ['nama' => 'Censea Inc'],
+                ['nama' => 'Eastern Fish Company LLC'],
+                ['nama' => 'San Sugar Co, , Ltd'],
+                ['nama' => 'Choice Canning Company Inc,'],
+                ['nama' => 'Grahamakmur Ciptapratama'],
             ]),
-            'accounting_system'           => 'Tally ERP — digunakan untuk pencatatan transaksi persediaan, penjualan, pembelian, dan pelaporan keuangan',
-            'accounting_issues'           => "1. Penilaian Aset Biologis (PSAK 69) — fair value tambak udang siklus berjalan\n2. Liabilitas Imbalan Pascakerja (PSAK 24) — pembaruan asumsi aktuarial 2024\n3. Pengakuan Pendapatan Ekspor — pisah batas (cut-off) periode Desember 2024",
-            'ethics'                      => 'Manajemen dan seluruh pengurus berkomitmen pada Kode Etik Perusahaan. Tidak ditemukan indikasi pelanggaran etika yang material selama periode audit.',
-            'conclusion'                  => 'Berdasarkan survei awal, klien layak untuk dilanjutkan perikatannya. Tidak ditemukan red flags yang menghalangi pelaksanaan audit tahun buku 2024.',
+            'main_distributors_vendors'   => json_encode([
+                ['nama' => 'PT Indonesia Makan Udang'],
+                ['nama' => 'CV Putra Widjaja Marine'],
+            ]),
+            'accounting_system'           => 'Tally',
+            'accounting_issues'           => json_encode([
+                [
+                    'topik' => 'Realisasi Penggunaan Dana Penawaran Umum Perdana Saham',
+                    'uraian' => "Perseroan melaksanakan Penawaran Umum Perdana Saham (IPO) pada tahun 2024. Berdasarkan POJK No. 30 tahun 2015 menerangkan bahwa Emoten wajib melaporkan realisasi penggunaan dana IPO dan segala hal yang berkaitan dengan penggunaan dana tersebut."
+                ],
+                [
+                    'topik' => 'Piutang Usaha',
+                    'uraian' => "Piutang Usaha Perseroan pada 30 September 2024 mengalami peningkatan sebesar Rp 18.004.797.977 atau setara 89,17% jika dibandingkan dengan 31 Desember 2023."
+                ],
+                [
+                    'topik' => 'Persediaan',
+                    'uraian' => "Persediaan Perseroan pada 30 September 2024 mengalami peningkatan sebesar Rp 10.765.630.157 atau setara 7,19% jika dibandingkan dengan 31 Desember 2023. Berdasarkan PSAK 202 \"Persediaan\" Par.09 diukur pada mana yang lebih rendah antara biaya perolehan dan nilai realisasi neto."
+                ],
+                [
+                    'topik' => 'Utang Bank',
+                    'uraian' => "Pada 30 September 2024, Grup mencatat utang bank jangka pendek sebesar Rp 197.771.078.247 atau setara dengan 86,84% dari jumlah liabilitas konsolidasian."
+                ],
+                [
+                    'topik' => 'Aset Biologis',
+                    'uraian' => "Grup memiliki aset biologis yang terdiri dari udang, pakan, dan benih udang."
+                ]
+            ]),
+            'ethics'                      => 'Pemegang Saham dan Manajemen menunjuk KAP sebagai auditor Independen agar laporan keuangan perusahaan disajikan sesuai dengan standar akuntansi keuangan di Indonesia.',
+            'conclusion'                  => 'Managing partner KAP MGN & Rekan ingin melanjutkan survey ini kepada PMPJ dan first pass background checking karena potensi yang besar di masa depan menjadi klien strategis bagi KAP MGN & Rekan.',
         ]);
 
         // =====================================================
@@ -190,44 +232,99 @@ class Fase1000AnswersSeeder extends Seeder
         $seedAnswers('1130B', [
             'company_name'              => 'PT INDO AMERICAN SEAFOODS Tbk dan Entitas Anak',
             'company_address'           => 'Jl. Ir. Sutami Km. 13 Desa Sukanegara, Kec. Tanjung Bintang, Kab. Lampung Selatan',
-            'industry'                  => 'Bidang pengolahan udang (Cold Storage & Processing)',
+            'industry'                  => 'Bidang pengolahan udang',
             'incorporated_in'           => 'Lampung Selatan',
             'date_of_incorporation'     => '2006-04-06',
-            'shareholders_info'         => "1. PT Indo American Food | 962.500.000 lembar | Rp 48.125.000.000 | 69.24%\n2. Saimi Saleh | 82.500.000 lembar | Rp 4.125.000.000 | 5.94%\n3. Ibnu Syena Alfitra | 55.000.000 lembar | Rp 2.750.000.000 | 3.96%\n4. Masyarakat (<5%) | 290.000.000 lembar | Rp 14.500.000.000 | 20.86%\nTOTAL: 1.390.000.000 lembar | Rp 69.500.000.000 | 100%",
-            'shareholders_background'   => 'Didirikan berdasarkan Akta Notaris No. 5 tgl 6 April 2006 Akhmad Dachlan, S.H. Perubahan anggaran dasar terakhir Akta No. 11 tgl 20 Mei 2022 (SK Kemenkumham AHU-0095588.AH.01.11.Tahun 2022).',
-            'directors_commissioners'   => "1. Ibnu Syena Alfitra | Laki-laki | 3578260805890003 | Surabaya | Indonesia | Direktur Utama\n2. Ibnu Surya Ramadhan | Laki-laki | 3578262502930001 | Surabaya | Indonesia | Direktur\n3. Abu Yazid | Laki-laki | 1871011612730002 | Bandar Lampung | Indonesia | Direktur\n4. Saimi Saleh | Laki-laki | 3578260612580001 | Surabaya | Indonesia | Komisaris Utama\n5. Dr. Leo Herlambang | Laki-laki | 3578012802690001 | Surabaya | Indonesia | Komisaris Independen",
-            'subsidiaries'              => '1. PT Indokom Samudera Persada | Bandar Lampung | Kepemilikan 51.22%',
-            'investments'               => '1. PT Indokom Samudera Persada | Pembesaran Crustacea Air Payau, Cold Storage, Pengolahan Udang | 2000 | 2023 | Bandar Lampung | Rp 248.490.881.601 | 51.22%',
+            'stockholders_about'                 => 'PT Indo American Seafoods Tbk merupakan perseroan terbatas terbuka yang bergerak di bidang perindustrian dan perdagangan hasil perikanan, terutama pengolahan dan pembekuan udang (cold storage & processing) yang didirikan di Lampung Selatan.',
+            'stockholders_parent_background'     => 'PT Indo American Seafoods ("Perusahaan") didirikan berdasarkan Akta Notaris No. 5 tanggal 6 April 2006 dari Akhmadi Dachlan, S.H., Notaris di Bandar Lampung. Akta pendirian ini disahkan oleh Menteri Hukum dan Hak Asasi Manusia Republik Indonesia dalam Surat Keputusannya No. C-16465HT.01.01.TH.2006 tanggal 6 Juni 2006. Anggaran Dasar Perusahaan telah mengalami beberapa kali perubahan, terakhir sebagaimana dinyatakan dalam Akta Notaris No. 11 tanggal 20 Mei 2022 dari Akhmadi Dachlan, S.H., M.Kn., mengenai perubahan pasal 3 Anggaran Dasar maksud dan tujuan kegiatan usaha Perusahaan. Akta perubahan ini telah disahkan oleh Menteri Hukum dan Hak Asasi Manusia Republik Indonesia berdasarkan Surat Keputusan No. AHU-0095588.AH.01.11.Tahun 2022 tanggal 24 Mei 2022.',
+            'stockholders_parent'                => json_encode([
+                ['nama' => 'PT Indo American Food', 'jumlah_lembar' => 962500000],
+                ['nama' => 'Saimi Saleh', 'jumlah_lembar' => 82500000],
+                ['nama' => 'Ibnu Syena Alfitra', 'jumlah_lembar' => 55000000],
+                ['nama' => 'Masyarakat (masing-masing dibawah 5%)', 'jumlah_lembar' => 290000000],
+            ]),
+            'stockholders_subsidiary_background' => 'PT Indokom Samudra Persada ("ISP") adalah suatu perseroan yang didirikan berdasarkan hukum Republik Indonesia, yang didirikan dengan nama PT Indokom Samudera Persada sesuai dengan Akta Pendirian ISP No. 9, tanggal 16 Agustus 2000, dibuat di hadapan Imran Ma\'aruf S.H., Notaris di Kota Bandar Lampung, dan telah mendapatkan pengesahan Menkumham berdasarkan Surat Keputusan No. C-1490 HT.01.01.TH 2001 Tahun 2001 tertanggal 28 Februari 2001, yang telah diumumkan dalam TBNRI No. 5902 pada BNRI No. 74, tanggal 14 September 2001 serta telah didaftarkan dalam Daftar Perseroan No. 303/BH.07.01/VII/2001 tertanggal 17 Juli 2001. Berdasarkan Akta No. 149/2023, struktur permodalan dan susunan pemegang saham ISP adalah sebagai berikut.',
+            'stockholders_subsidiary'            => json_encode([
+                ['nama' => 'Perseroan', 'jumlah_saham' => 1050],
+                ['nama' => 'Saimi Saleh', 'jumlah_saham' => 600],
+                ['nama' => 'Ibnu Syena Alfitra', 'jumlah_saham' => 400],
+            ]),
+            'directors_commissioners'   => json_encode([
+                ['nama' => 'Ibnu Syena Alfitra', 'gender' => 'Man', 'no_identity' => '3578260805890003', 'address' => 'Laguna Barat 7 Blok A-7/3-5, Kota Surabaya', 'date_of_birth' => '1989-05-08', 'nationality' => 'Indonesia', 'function' => 'President Director'],
+                ['nama' => 'Ibnu Surya Ramadhan', 'gender' => 'Man', 'no_identity' => '3578262502930001', 'address' => 'Laguna Barat 7 Blok A-7/3-5, Kota Surabaya', 'date_of_birth' => '1993-02-25', 'nationality' => 'Indonesia', 'function' => 'Director'],
+                ['nama' => 'Abu Yazid', 'gender' => 'Man', 'no_identity' => '1871011612730002', 'address' => 'Jalan Galunggung Raya F.19, Kota Bandar Lampung', 'date_of_birth' => '1973-12-16', 'nationality' => 'Indonesia', 'function' => 'Director'],
+                ['nama' => 'Saimi Saleh', 'gender' => 'Man', 'no_identity' => '3578260612580001', 'address' => 'Laguna Barat 7 Blok A-7/3-5, Kota Surabaya', 'date_of_birth' => '1958-12-06', 'nationality' => 'Indonesia', 'function' => 'President Commissioner'],
+                ['nama' => 'Leo Herlambang', 'gender' => 'Man', 'no_identity' => '3578012802690001', 'address' => 'Florence J-9 No 9 Pakuwon City, Kota Surabaya', 'date_of_birth' => '1969-02-28', 'nationality' => 'Indonesia', 'function' => 'Independent Commissioner'],
+            ]),
+            'subsidiaries'              => json_encode([
+                ['nama_entitas' => 'PT Indokom Samudera Persada', 'domisili' => 'Bandar Lampung'],
+            ]),
+            'investments'               => json_encode([
+                ['nama_entitas' => 'PT Indokom Samudera Persada', 'kegiatan_usaha' => 'Pembesaran Crustacea Air Payau, Industri Pembekuan Biota Air Lainnya, Industri Makanan dan Masakan Olahan. Perdagangan Besar Hasil Perikanan.', 'tahun_pendirian' => '2020', 'tahun_penyertaan' => '2023', 'domisili' => 'Bandar Lampung', 'jumlah_aset' => '248490881601', 'persentase' => '51.22%'],
+            ]),
         ]);
 
         // =====================================================
         // 1130C: BACKGROUND CHECK
+        // Sumber verbatim: 1130 C. Background Check_PT IAS Tbk dan Entitas Anak_2024 Rev 1.docx
+        // Results = repeater per-nama (nama, no_identitas/ref, penjelasan)
         // =====================================================
         $seedAnswers('1130C', [
-            'searched_names'      => "1. H. Saimi Saleh, S.E., M.M.\n2. Dr. Leo Herlambang\n3. Ibnu Syena Alfitra, S.T., M.I.B.\n4. Ibnu Surya Ramadhan\n5. Abu Yazid",
-            'search_results'      => "1. H. Saimi Saleh: Clear / Tidak ada catatan kriminal, PEP teridentifikasi dan termitigasi.\n2. Dr. Leo Herlambang: Clear / Akademisi & Profesional Independen.\n3. Ibnu Syena Alfitra: Clear / Tidak ada catatan buruk.\n4. Ibnu Surya Ramadhan: Clear / Tidak ada catatan buruk.\n5. Abu Yazid: Clear / Tidak ada catatan buruk.",
-            'company_background' => 'PT Indo American Seafoods Tbk didirikan Akta No. 5 tgl 6 April 2006. PT Indokom Samudra Persada (Anak) didirikan Akta No. 9 tgl 16 Agustus 2000.',
-            'business_purpose'   => 'Perusahaan bergerak dalam bidang Perindustrian, Perdagangan, Industri pembekuan biota air lainnya, Industri makanan olahan, perdagangan besar hasil perikanan (pengolahan udang).',
-            'conclusion'         => 'Background check menunjukkan seluruh pengurus dan pemegang saham utama berintegritas baik tanpa catatan negatif hukum.',
+            'searched_names'         => json_encode([
+                ['nama' => 'H Saimi Saleh S.E.,M.M'],
+                ['nama' => 'Hendra, S.E., CPA'],
+                ['nama' => 'Dr. Leo Herlambang'],
+                ['nama' => 'Ibnu Syena Alfitra S.T.,M.I.B'],
+                ['nama' => 'Ibnu Surya Ramadhan'],
+                ['nama' => 'Abu Yazid'],
+                ['nama' => 'PT Indo American Seafoods Tbk dan Entitas Anak'],
+            ]),
+            'search_results'         => json_encode([
+                ['nama' => 'H Saimi Saleh S.E.,M.M', 'no_identitas' => '4572005334000', 'penjelasan' => 'Tidak ditemukan catatan negatif hukum / litigasi.'],
+                ['nama' => 'Hendra, S.E., CPA', 'no_identitas' => '', 'penjelasan' => 'Tidak ditemukan catatan negatif hukum / litigasi.'],
+                ['nama' => 'Dr. Leo Herlambang', 'no_identitas' => 'right635000', 'penjelasan' => 'Tidak ditemukan catatan negatif hukum / litigasi.'],
+                ['nama' => 'Ibnu Syena Alfitra S.T.,M.I.B', 'no_identitas' => '457200317500', 'penjelasan' => 'Tidak ditemukan catatan negatif hukum / litigasi.'],
+                ['nama' => 'Ibnu Surya Ramadhan', 'no_identitas' => 'right1460500', 'penjelasan' => 'Tidak ditemukan catatan negatif hukum / litigasi.'],
+                ['nama' => 'Abu Yazid', 'no_identitas' => '', 'penjelasan' => 'Tidak ditemukan catatan negatif hukum / litigasi.'],
+                ['nama' => 'PT Indo American Seafoods Tbk dan Entitas Anak', 'no_identitas' => '', 'penjelasan' => 'Tidak ditemukan sanksi administratif / pencabutan izin.'],
+            ]),
+            'ias_company_background' => 'PT Indo American Seafoods Tbk ("Perusahaan") didirikan berdasarkan Akta Notaris No. 5 tanggal 6 April 2006 dari Akhmad Dachlan, S.H., notaris di Bandar Lampung Akta pendirian ini telah disahkan oleh Menteri Hukum dan Hak Asasi Manusia Republik Indonesia dengan Surat Keputusannya No. C-16465HT.01.01.TH.2006 tanggal 6 Juni 2006 dan telah diumumkan dalam Lembar Berita Negara Republik Indonesia No. AHU-0011137.AH.01.09. Tahun 2010 tanggal 12 Februari 2010.',
+            'ias_business_purpose'   => 'Perusahaan terutama bergerak dalam bidang Perindustrian, Perdagangan, Industri pembekuan biota air lainnya, Industri makanan dan masakan olahan, perdagangan besar hasil perikanan. Pada saat ini Perusahaan bergerak dalam bidang pengolahan udang.',
+            'isp_company_background' => 'ISP adalah suatu perseroan yang didirikan berdasarkan hukum Republik Indonesia, yang didirikan dengan nama PT Indokom Samudera Persada sesuai dengan Akta Pendirian ISP No. 9, tanggal 16 Agustus 2000, dibuat di hadapan Imran Ma\'aruf S.H., Notaris di Kota Bandar Lampung, dan telah mendapatkan pengesahan Menkumham berdasarkan Surat Keputusan No. C-1490 HT.01.01.TH 2001 Tahun 2001 tertanggal 28 Februari 2001, yang telah diumumkan dalam TBNRI No. 5902 pada BNRI No. 74, tanggal 14 September 2001 serta telah didaftarkan dalam Daftar Perseroan No. 303/BH.07.01/ VII/2001 tertanggal 17 Juli 2001 ("Akta Pendirian ISP").',
+            'isp_business_purpose'   => "Maksud dan tujuan ISP berdasarkan Akta No. 38/2022 ialah:\n- Pertanian, Kehutanan dan Perikanan;\n- Perindustrian;\n- Perdagangan;",
+            'conclusion'             => 'Background check menunjukkan seluruh pengurus dan pemegang saham utama berintegritas baik tanpa catatan negatif hukum.',
         ]);
 
         // =====================================================
         // 1130D: ENTITIES TREE / UBO
         // =====================================================
         $seedAnswers('1130D', [
-            'ubo_name'             => 'H. Saimi Saleh',
-            'ownership_structure'  => "H. Saimi Saleh (Pengendali Akhir / UBO)\n  ├── PT Indo American Food (Holding)\n  │     └── PT Indo American Seafoods Tbk (69.24%)\n  │           └── PT Indokom Samudra Persada (51.22%)\n  ├── Kepemilikan Langsung di PT Indo American Seafoods Tbk (5.94%)\n  └── Kepemilikan Langsung di PT Indokom Samudra Persada (29.27%)",
-            'subsidiaries_detail'  => 'PT Indokom Samudra Persada — Bandar Lampung — 51.22% kepemilikan langsung PT IAS Tbk.',
-            'ownership_changes'    => 'Pelaksanaan IPO pada Juni 2024 dengan pelepasan 20.86% saham ke masyarakat publik.',
-            'conclusion'           => 'Struktur kepemilikan dan Ultimate Beneficial Owner (UBO) telah teridentifikasi dan terdokumentasi dengan lengkap.',
+            'ubo_name'      => 'Saimi Saleh',
+            'entities_tree' => json_encode([
+                ['pemilik' => 'Mr. Ibnu Syena Alfitra', 'dimiliki' => 'PT Indo American Seafoods Tbk', 'persentase' => 3.96],
+                ['pemilik' => 'PT Indo American Foods', 'dimiliki' => 'PT Indo American Seafoods Tbk', 'persentase' => 69.24],
+                ['pemilik' => 'Mr. Saimi Saleh', 'dimiliki' => 'PT Indo American Seafoods Tbk', 'persentase' => 5.94],
+                ['pemilik' => 'Masyarakat (masing-masing dibawah 5%)', 'dimiliki' => 'PT Indo American Seafoods Tbk', 'persentase' => 20.86],
+                ['pemilik' => 'PT Indo American Seafoods Tbk', 'dimiliki' => 'PT Indokom Samudera Persada', 'persentase' => 51.22],
+            ]),
         ]);
 
         // =====================================================
         // 1200: KONFIRMASI INDEPENDENSI
         // =====================================================
         $seedAnswers('1200', [
-            'confirmation_statement' => 'Saya mengkonfirmasi bahwa: (i) Saya atau suami/istri atau tanggungan tidak memiliki kepentingan keuangan pada klien ini; dan (ii) Independensi saya dapat dipertanggungjawabkan dalam hubungan pribadi dan konflik kepentingan.',
-            'team_declarations'      => "1. Maurice Ganda Nainggolan | Partner | 11 Oktober 2024 | Disetujui\n2. Artha Dame Marito | Quality Control (EQCR) | 11 Oktober 2024 | Disetujui\n3. Kenny Nurardi Wijaya | Manager | 10 Oktober 2024 | Disetujui\n4. Netty Lidya Simanjuntak | Senior Associate | 9 Oktober 2024 | Disetujui\n5. Raynaldi Tribuana | Senior Associate | 9 Oktober 2024 | Disetujui\n6. Daniel Gerald H | Junior Associate | 9 Oktober 2024 | Disetujui\n7. Irene Rizka Amalia | Junior Associate | 9 Oktober 2024 | Disetujui\n8. Aryn Sasikirana | Junior Associate | 9 Oktober 2024 | Disetujui\n9. Kurotun Ainiyah | Junior Associate | 9 Oktober 2024 | Disetujui",
+            'confirmation_statement' => 'true',
+            'team_declarations'      => json_encode([
+                ['no' => 1, 'anggota_perikatan' => 'Maurice Ganda Nainggolan', 'jabatan' => 'Partner', 'tanggal_konfirmasi' => '2024-10-11', 'paraf' => ''],
+                ['no' => 2, 'anggota_perikatan' => 'Artha Dame Marito', 'jabatan' => 'Quality Control (EQCR)', 'tanggal_konfirmasi' => '2024-10-11', 'paraf' => ''],
+                ['no' => 3, 'anggota_perikatan' => 'Kenny Nurardi Wijaya', 'jabatan' => 'Manager', 'tanggal_konfirmasi' => '2024-10-10', 'paraf' => ''],
+                ['no' => 4, 'anggota_perikatan' => 'Netty Lidya Simanjuntak', 'jabatan' => 'Senior Associate', 'tanggal_konfirmasi' => '2024-10-09', 'paraf' => ''],
+                ['no' => 5, 'anggota_perikatan' => 'Raynaldi Tribuana', 'jabatan' => 'Senior Associate', 'tanggal_konfirmasi' => '2024-10-09', 'paraf' => ''],
+                ['no' => 6, 'anggota_perikatan' => 'Daniel Gerald H', 'jabatan' => 'Junior Associate', 'tanggal_konfirmasi' => '2024-10-09', 'paraf' => ''],
+                ['no' => 7, 'anggota_perikatan' => 'Irene Rizka Amalia', 'jabatan' => 'Junior Associate', 'tanggal_konfirmasi' => '2024-10-09', 'paraf' => ''],
+                ['no' => 8, 'anggota_perikatan' => 'Aryn Sasikirana', 'jabatan' => 'Junior Associate', 'tanggal_konfirmasi' => '2024-10-09', 'paraf' => ''],
+                ['no' => 9, 'anggota_perikatan' => 'Kurotun Ainiyah', 'jabatan' => 'Junior Associate', 'tanggal_konfirmasi' => '2024-10-09', 'paraf' => ''],
+            ]),
         ]);
 
         // =====================================================
@@ -252,21 +349,144 @@ class Fase1000AnswersSeeder extends Seeder
 
         // =====================================================
         // 1400: LAPORAN RISIKO
+        // Sumber: 1400 Laporan Risiko PT IAS 2024.docx
+        // Tabel: No | Deskripsi Risiko | Kesalahan yang mungkin terjadi | Dampak (H/L) | Probabilitas (H/L) | Risiko Signifikan? (Y/N) | Penetapan Asersi, Pervasif atau Seluruh Entitas | Ringkasan Pendekatan Audit | Ref
         // =====================================================
         $seedAnswers('1400', [
-            'fs_governance'           => "Manajemen Kunci meliputi Direktur Utama dan Direktur. Pengendali terakhir adalah Saimi Saleh.\nBOD & Manajemen bertanggung jawab atas penyusunan LK wajar dan pengendalian internal.\nBOC dan BOD memiliki pengalaman 15-39 tahun (Pendidikan SMP s/d S1). Dampak: H, Probabilitas: H, Signifikan: Y, Asersi: Pervasif.",
-            'fs_tone_at_top'          => "Direksi memberikan kebijakan dan Perjanjian Kerja (PK) untuk mencegah fraud. Pengawasan berjenjang Supervisor -> Manager -> Direktur. Pemisahan tugas dan reviu berjenjang dokumen. Dampak: H, Prob: H, Sig: Y, Asersi: Pervasif.",
-            'fs_management_override'  => "Informasi kecurangan dideteksi lewat internal audit/komite audit dan dikomunikasikan berkala ke Direktur Utama dan Komisaris. Form Testing Journal Entry. Dampak: H, Prob: H, Sig: Y, Asersi: Pervasif.",
-            'fs_revenue_recognition'  => "TOC pengakuan penjualan: pengukuran, penyajian, pengungkapan, pisah batas (cut off). Form 2200.1 Uji Pengendalian ToC & D&I. Dampak: H, Prob: H, Sig: Y, Asersi: Pervasif.",
-            'fs_journal_entries'      => "Pengujian 5 jurnal terakhir Juni & Desember 2024 termasuk JV. Tidak terdapat unusual journal entry pada akrual, penyusutan, reklasifikasi, uang muka, pembelian. Dampak: H, Prob: H, Sig: Y, Asersi: Pervasif.",
-            'fs_accounting_policies'  => "Kebijakan akuntansi sesuai SAK dan Manual Pedoman Akuntansi Keuangan Perusahaan. Form 1450. Dampak: H, Prob: H, Sig: Y, Asersi: Pervasif.",
-            'fs_bonus_incentives'     => "Remunerasi tahunan hanya diberikan kepada Dewan Komisaris dan Dewan Direksi sesuai LAI Notes 34 Pihak Berelasi. Dampak: H, Prob: H, Sig: Y, Asersi: Pervasif.",
-            'fs_personnel_competence' => "Personel terlatih (S1 untuk staf, SMA/SMK untuk admin). Transaksi diinput ke Tally dan diverifikasi Accounting sebelum diposting. Dampak: H, Prob: H, Sig: Y, Asersi: Pervasif.",
-            'acct_risk_1'             => "Accounting Risk #1: Piutang Usaha & Beban CKPN (Valuation).\nDeskripsi: Manajemen berpotensi tidak memiliki asumsi tepat dalam penentuan CKPN.\nDampak: H, Probabilitas: H, Risiko Signifikan: Y, Tidak Pervasif.\nPendekatan: Interviu dasar CKPN, identifikasi piutang >90 hari, hitung ulang cadangan, periksa subsequent receipts.",
-            'acct_risk_2'             => "Accounting Risk #2: Liabilitas Imbalan Pascakerja PSAK 24 (Valuation).\nDeskripsi: Potensi ketidaksesuaian penerapan siaran pers IAI 2024.\nDampak: H, Prob: H, Sig: Y, Tidak Pervasif.\nPendekatan: Komunikasi dengan aktuaris dan manajemen, analisis asumsi aktuaris.",
-            'acct_risk_3'             => "Fraud Risk #1: Efektivitas Penjagaan Aset Tetap & Pengadaan (Existence & Valuation).\nDampak: L, Prob: H, Sig: N, Tidak Pervasif.\nPendekatan: Peroleh SOP pengadaan, tanya jawab internal auditor, cek dokumen pembelian/penjualan aset, minta PK aset tetap.",
-            'acct_risk_4'             => "Fraud Risk #2: Penyalahgunaan Aset Bagian Distribusi.\nDampak: L, Prob: H, Sig: N, Tidak Pervasif.\nPendekatan: Interviu auditor internal, minta laporan temuan internal audit 2024.",
-            'acct_risk_5'             => "Accounting/Fraud Risk #3: Fraudulent Financial Reporting Target Net Income & Pengakuan Pendapatan.\nDampak: H, Prob: H, Sig: N, Tidak Pervasif.\nPendekatan: Kunjungan kantor pusat, tanya jawab pengakuan penjualan, cut-off testing.",
+            'fs_risks' => json_encode([
+                [
+                    'deskripsi_risiko'    => 'Siapa yang bertanggung jawab atas tata kelola Perusahaan, kualifikasi, independensi, dan bagaimana mereka menjalankan fungsinya.',
+                    'kesalahan'           => '',
+                    'dampak'              => 'H',
+                    'probabilitas'        => 'H',
+                    'risiko_signifikan'   => 'Y',
+                    'asersi'              => 'Pervasif',
+                    'ringkasan_pendekatan'=> 'Manajemen Kunci Perusahaan meliputi jabatan Direktur Utama dan Direktur. Pengendali terakhir Perusahaan adalah Saimi Saleh. BOD dan Manajemen bertanggung jawab atas penyusunan dan penyajian wajar laporan keuangan sesuai dengan dan atas pengendalian internal untuk memungkinkan penyusunan laporan keuangan yang bebas dari kesalahan penyajian material, baik yang disebabkan oleh kecurangan maupun kesalahan. Untuk kualifikasinya, BOC dan BOD memiliki pengalaman kerja antara 15 – 39 tahun dengan tingkat Pendidikan SMP sampai S1.',
+                    'ref'                 => 'Struktur Organisasi',
+                ],
+                [
+                    'deskripsi_risiko'    => 'Code of Conduct Perusahaan yang mencerminkan penerapan etika Tone at the Top.',
+                    'kesalahan'           => '',
+                    'dampak'              => 'H',
+                    'probabilitas'        => 'H',
+                    'risiko_signifikan'   => 'Y',
+                    'asersi'              => 'Pervasif',
+                    'ringkasan_pendekatan'=> 'Pada tingkat Direksi, memberikan kebijakan dan PK (Perjanjian Kerja) untuk mencegah terjadinya kecurangan, tentunya dengan pengawasan. Selanjutnya adanya pengawasan berjenjang dari level Supervisor, Manager, hingga Direktur yang dilakukan secara berkala terhadap setiap fungsi yang ada di Perusahaan. Sebagai contoh, dilakukan pemisahan tugas dan reviu berjenjang pada setiap dokumen. Pimpinan Perusahaan menerapkan Tone at the Top dengan tidak melakukan tindakan / perbuatan yang melanggar untuk mencegah terjadinya fraud / kecurangan.',
+                    'ref'                 => 'PK (Perjanjian Kerja), Form 1441 Penilaian Risiko Kecurangan',
+                ],
+                [
+                    'deskripsi_risiko'    => 'Apakah ada kontrol untuk menghindari management override. Management override identik dengan manipulasi pencatatan akuntansi dan kecurangan pada laporan keuangan.',
+                    'kesalahan'           => '',
+                    'dampak'              => 'H',
+                    'probabilitas'        => 'H',
+                    'risiko_signifikan'   => 'Y',
+                    'asersi'              => 'Pervasif',
+                    'ringkasan_pendekatan'=> 'Informasi aktual terkait kecurangan dapat dideteksi melalui proses audit oleh auditor internal / komite audit dan biasanya dikomunikasikan secara berkala kepada direktur utama dan komisaris, sehingga disefisiensi atau kelemahan pada Perusahaan dapat segera dideteksi dan diantisipasi.',
+                    'ref'                 => 'Form Testing Journal Entry',
+                ],
+                [
+                    'deskripsi_risiko'    => 'Tes pengendalian terhadap pengakuan pendapatan.',
+                    'kesalahan'           => '',
+                    'dampak'              => 'H',
+                    'probabilitas'        => 'H',
+                    'risiko_signifikan'   => 'Y',
+                    'asersi'              => 'Pervasif',
+                    'ringkasan_pendekatan'=> 'Melakukan Prosedur Tes Of Control (TOC) terkait pengakuan penjualan dalam hal pengukuran, penyajian dan pengungkapan serta pisah batas (cut off) pengakuan pendapatan.',
+                    'ref'                 => 'Form 2200.1 Uji Pengendalian_ToC & Tes D & I',
+                ],
+                [
+                    'deskripsi_risiko'    => "Entri jurnal Non-standard (all): Untuk memastikan entri jurnal non-standard berada dalam kegiatan bisnis biasa.\n5 jurnal terakhir di bulan Juni 2024 termasuk JV: Untuk memastikan entri jurnal yang dibuat pada akhir tahun keuangan berkaitan dengan kegiatan bisnis biasa perusahaan.\n5 jurnal terakhir di bulan Desember 2024 termasuk JV: Untuk memastikan entri jurnal yang dibuat pada akhir tahun keuangan berkaitan dengan kegiatan bisnis biasa perusahaan.",
+                    'kesalahan'           => '',
+                    'dampak'              => 'H',
+                    'probabilitas'        => 'H',
+                    'risiko_signifikan'   => 'Y',
+                    'asersi'              => 'Pervasif',
+                    'ringkasan_pendekatan'=> "Tidak terdapat unusual journal entry terhadap:\nAkrual Bulanan untuk beban operasional dan beban penggajian\nPenyusutan bulanan\nReklasifikasi akun\nUang Muka\nPembelian",
+                    'ref'                 => 'Form Testing Journal Entry',
+                ],
+                [
+                    'deskripsi_risiko'    => 'Penerapan kebijakan akuntansi sesuai dengan Standar Akuntansi.',
+                    'kesalahan'           => '',
+                    'dampak'              => 'H',
+                    'probabilitas'        => 'H',
+                    'risiko_signifikan'   => 'Y',
+                    'asersi'              => 'Pervasif',
+                    'ringkasan_pendekatan'=> 'Perusahaan telah menetapkan kebijakan akuntansi yang sesuai dengan Standar Akuntansi Keuangan dan Manual Pedoman Akuntansi Keuangan Perusahaan.',
+                    'ref'                 => 'Form 1450 Penilaian Risiko Akuntansi',
+                ],
+                [
+                    'deskripsi_risiko'    => 'Pemberian bonus dan insentif yang mendorong terjadinya manipulasi dalam LK.',
+                    'kesalahan'           => '',
+                    'dampak'              => 'H',
+                    'probabilitas'        => 'H',
+                    'risiko_signifikan'   => 'Y',
+                    'asersi'              => 'Pervasif',
+                    'ringkasan_pendekatan'=> 'Menurut keterangan manajemen, Perusahaan memberikan remunerasi setiap tahunnya hanya kepada Dewan Komisaris dan Dewan Direksi.',
+                    'ref'                 => 'LAI Notes 34 Transaksi dengan Pihak-pihak Berelasi',
+                ],
+                [
+                    'deskripsi_risiko'    => 'Kecukupan dan kompetensi personel bidang akuntansi dalam penyusunan LK.',
+                    'kesalahan'           => '',
+                    'dampak'              => 'H',
+                    'probabilitas'        => 'H',
+                    'risiko_signifikan'   => 'Y',
+                    'asersi'              => 'Pervasif',
+                    'ringkasan_pendekatan'=> 'Personel yang bertanggung jawab sudah terlatih dan kompeten di bidangnya dengan latar belakang strata 1 untuk staff dan setara SMA/SMK untuk level admin. Setiap divisi, departemen, dan hub/cabang akan menginput data baik penjualan atau pembelian kedalam sistem Tally yang kemudian akan diverifikasi oleh Accounting dan lalu jika sudah sesuai dan di-approve akan di-posting dalam Tally dan akan diungkapkan dalam laporan keuangan.',
+                    'ref'                 => '1430 Proses Pelaporan Keuangan',
+                ],
+            ]),
+            'acct_risks' => json_encode([
+                [
+                    'deskripsi_risiko'    => 'Accounting Risk #1 Pencatatan cadangan kerugian penurunan nilai piutang',
+                    'kesalahan'           => 'Manajemen berpotensi tidak memiliki asumsi dan dasar yang tepat dalam menentukan cadangan kerugian penurunan nilai piutang. Nilai pencadangan kerugian penurunan nilai piutang yang dicatatkan terlalu tinggi atau rendah daripada yang seharusnya.',
+                    'dampak'              => 'H',
+                    'probabilitas'        => 'H',
+                    'risiko_signifikan'   => 'Y',
+                    'asersi'              => "Piutang Usaha (Valuation)\nBeban kerugian penurunan nilai piutang (Valuation)\nTidak pervasif",
+                    'ringkasan_pendekatan'=> "Melakukan interviu kepada manajemen terkait dasar penentuan nilai cadangan kerugian penurunan nilai piutang.\nMelakukan identifikasi dan tanya jawab terkait piutang usaha yang sudah lebih dari 90 hari dan tingkat kemungkinan pembayarannya.\nMelakukan perhitungan cadangan kerugian nilai piutang menggunakan dasar penentuan yang lebih komprehensif.\nMemeriksa subsequent event receipt setelah tanggal neraca apakah cukup lancar untuk menutupi piutang yang sudah default/macet.",
+                    'ref'                 => '1450 Penilaian Risiko Akuntansi',
+                ],
+                [
+                    'deskripsi_risiko'    => 'Accounting Risk #2 Pencatatan PSAK 24 tidak sesuai dengan siaran pers yang dilakukan IAI pada tahun 2024',
+                    'kesalahan'           => 'Pencatatan liabilitas imbalan pascakerja berpotensi lebih tinggi, tidak sesuai dengan penjelasan IAI melalui siaran pers tentang penerapan PSAK 24',
+                    'dampak'              => 'H',
+                    'probabilitas'        => 'H',
+                    'risiko_signifikan'   => 'Y',
+                    'asersi'              => "Liabilitas Imbalan Pascakerja (Valuation),\nBeban Imbalan Pascakerja (Valuation)\nPenghasilan Komprehensif Lain (Valuation)\nTidak pervasif",
+                    'ringkasan_pendekatan'=> "Melakukan komunikasi dengan manajemen dan aktuaris membahas siaran pers IAI tersebut dan pengaruhnya terhadap perhitungan liabilitas imbalan pascakerja yang dilakukan.\nMenganalisa asumsi yang digunakan oleh aktuaris untuk menghitung liabilitas imbalan pascakerja tersebut.",
+                    'ref'                 => '1450 Penilaian Risiko Akuntansi',
+                ],
+                [
+                    'deskripsi_risiko'    => 'Fraud Risk #1 Efektifitas Perusahaan dalam menjaga asetnya',
+                    'kesalahan'           => 'Perusahaan perlu memperhatikan Langkah tepat dalam melakukan pengeluaran untuk barang modal dan perlu dilakukan pengawasan terhadap aset yang dibeli tersebut.',
+                    'dampak'              => 'L',
+                    'probabilitas'        => 'H',
+                    'risiko_signifikan'   => 'N',
+                    'asersi'              => "Piutang Usaha (Valuation, Existence)\nPenjualan aset tetap (Existence dan valuation)\nTidak pervasif",
+                    'ringkasan_pendekatan'=> "Peroleh SOP terkait pengadaan barang dan penjualan barang.\nTanya jawab dengan auditor internal.\nLakukan pengecekan terhadap dokumen pendukung sehubungan dengan pembelian dan penjualan aset tetap tersebut.\nMeminta laporan auditor internal sehubungan dengan hasil temuannya selama tahun 2024.\nMeminta PK terkait aset tetap.",
+                    'ref'                 => '1440 Penilaian Risiko Kecurangan',
+                ],
+                [
+                    'deskripsi_risiko'    => 'Fraud Risk #2 Penyalahgunaan aset oleh karyawan dan manajemen',
+                    'kesalahan'           => 'Penyalahgunaan aset oleh bagian distribusi bisa saja terjadi dikarenakan belum ada',
+                    'dampak'              => 'L',
+                    'probabilitas'        => 'H',
+                    'risiko_signifikan'   => 'N',
+                    'asersi'              => 'Tidak pervasif',
+                    'ringkasan_pendekatan'=> "Melakukan interviu dengan auditor internal sehubungan dengan hasil pemeriksaannya selama tahun 2024.\nMeminta laporan auditor internal sehubungan dengan hasil temuannya selama tahun 2024.",
+                    'ref'                 => '1440 Penilaian Risiko Kecurangan',
+                ],
+                [
+                    'deskripsi_risiko'    => 'Accounting Risk #3 Fraud Risk #3 Fraudulent Financial Reporting',
+                    'kesalahan'           => 'Manajemen mempunyai target yang sudah ditentukan bersama sebelumnya Untuk mencapai net income tersebut, dimulai dari perolehan project baru yang diikuti oleh pengakuan pendapatan.',
+                    'dampak'              => 'H',
+                    'probabilitas'        => 'H',
+                    'risiko_signifikan'   => 'N',
+                    'asersi'              => 'Tidak pervasif',
+                    'ringkasan_pendekatan'=> "Melakukan kunjungan ke kantor pusat.\nMelakukan tanya jawab sehubungan dengan pengakuan penjualan",
+                    'ref'                 => '1440 Penilaian Risiko Kecurangan',
+                ],
+            ]),
         ]);
 
         // =====================================================

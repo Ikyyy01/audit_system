@@ -72,6 +72,9 @@ const saving = ref(false);
 const exporting = ref(false);
 const importing = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
+const uploadingFieldId = ref<number | null>(null);
+const activeUploadFieldId = ref<number | null>(null);
+const fieldFileInput = ref<HTMLInputElement | null>(null);
 
 // Label & badge status disamain persis dengan token di style.css
 // (status-badge--draft / pending-review / reviewed / revision-required / approved)
@@ -107,10 +110,15 @@ function optionsFor(field: Field): FieldOption[] {
 function repeaterColumnsFor(field: Field): RepeaterColumn[] {
     if (!field.options_json) return [];
     if (Array.isArray(field.options_json)) return field.options_json;
+    if (typeof field.options_json === 'object' && Array.isArray((field.options_json as any).columns)) {
+        return (field.options_json as any).columns;
+    }
     if (typeof field.options_json === 'string') {
         try {
             const parsed = JSON.parse(field.options_json);
-            return Array.isArray(parsed) ? parsed : [];
+            if (Array.isArray(parsed)) return parsed;
+            if (parsed && Array.isArray(parsed.columns)) return parsed.columns;
+            return [];
         } catch {
             return [];
         }
@@ -123,6 +131,72 @@ function inputType(fieldType: string): string {
     if (fieldType === 'date') return 'date';
     if (fieldType === 'file') return 'file';
     return 'text';
+}
+
+// Untuk field tertentu labelnya bisa dinamis — mis. "Total Assets as of September 30, 2024"
+// di mana tanggalnya diambil dari field total_assets_period yang diisi auditor.
+function displayFieldLabel(field: Field, allFields: Field[]): string {
+    if (field.field_name === 'total_assets') {
+        const periodField = allFields.find(f => f.field_name === 'total_assets_period');
+        const periodVal = periodField ? answers[periodField.id] : null;
+        if (periodVal && String(periodVal).trim()) {
+            return `Total Assets as of ${String(periodVal).trim()}`;
+        }
+        return 'Total Assets';
+    }
+    return field.field_label;
+}
+
+// Sinkronisasi khusus repeater (mis. Form 1130C searched_names -> search_results)
+function handleRepeaterUpdate(field: Field, value: string) {
+    answers[field.id] = value;
+
+    if (field.field_name === 'searched_names') {
+        const allFields = form.value?.sections?.flatMap((s: any) => s.fields) || [];
+        const resultsField = allFields.find((f: any) => f.field_name === 'search_results');
+        if (resultsField) {
+            syncSearchedNamesToResults(value, resultsField.id);
+        }
+    }
+}
+
+function syncSearchedNamesToResults(searchedNamesJson: string, resultsFieldId: number) {
+    let names: string[] = [];
+    try {
+        const parsed = typeof searchedNamesJson === 'string' ? JSON.parse(searchedNamesJson) : searchedNamesJson;
+        if (Array.isArray(parsed)) {
+            names = parsed.map(r => String(r.nama || r.Name || '').trim()).filter(Boolean);
+        }
+    } catch {
+        return;
+    }
+
+    let existingResults: Record<string, any>[] = [];
+    try {
+        const curr = answers[resultsFieldId];
+        const parsed = typeof curr === 'string' ? JSON.parse(curr) : curr;
+        if (Array.isArray(parsed)) existingResults = parsed;
+    } catch {
+        existingResults = [];
+    }
+
+    const existingMap = new Map<string, { no_identitas?: string; penjelasan?: string }>();
+    existingResults.forEach(r => {
+        const k = String(r.nama || '').trim().toLowerCase();
+        if (k) existingMap.set(k, { no_identitas: r.no_identitas, penjelasan: r.penjelasan });
+    });
+
+    const newResults = names.map((name, idx) => {
+        const k = name.toLowerCase();
+        const existing = existingMap.get(k) || existingResults[idx] || {};
+        return {
+            nama: name,
+            no_identitas: existing.no_identitas || '',
+            penjelasan: existing.penjelasan || '',
+        };
+    });
+
+    answers[resultsFieldId] = JSON.stringify(newResults);
 }
 
 // Conditional visibility: field tertentu hanya tampil berdasarkan jawaban field lain.
@@ -460,6 +534,58 @@ function triggerFileInput() {
     fileInput.value?.click();
 }
 
+// ── Upload file per-field (field_type='file'), generik untuk form apapun ──
+function triggerFieldFileInput(fieldId: number) {
+    if (!canEdit.value) return;
+    activeUploadFieldId.value = fieldId;
+    fieldFileInput.value?.click();
+}
+
+function fieldFileUrl(path: any): string {
+    if (!path) return '';
+    return `/storage/${path}`;
+}
+
+function fieldFileName(path: any): string {
+    if (!path) return '';
+    const parts = String(path).split('/');
+    return parts[parts.length - 1];
+}
+
+async function handleFieldFileChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const fieldId = activeUploadFieldId.value;
+    activeUploadFieldId.value = null;
+    if (!input.files || input.files.length === 0 || !fieldId || !responseId.value) return;
+
+    const file = input.files[0];
+    input.value = '';
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    uploadingFieldId.value = fieldId;
+    try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`/api/v1/audit-form-responses/${responseId.value}/fields/${fieldId}/upload`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+            body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            alert(data.message || 'Gagal mengunggah file.');
+            return;
+        }
+        answers[fieldId] = data.path;
+    } catch (e) {
+        console.error(e);
+        alert('Terjadi kesalahan jaringan saat mengunggah file.');
+    } finally {
+        uploadingFieldId.value = null;
+    }
+}
+
 async function handleFileChange(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
@@ -551,6 +677,14 @@ watch(code, () => {
                             style="display:none"
                             @change="handleFileChange"
                         />
+                    <!-- Hidden file input untuk per-field file upload (form 1200 dll) -->
+                    <input
+                        ref="fieldFileInput"
+                        type="file"
+                        accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx"
+                        style="display:none"
+                        @change="handleFieldFileChange"
+                    />
                         <button class="btn export-btn" :disabled="exporting" @click="handleExport">
                             {{ exporting ? 'Mengunduh...' : 'Export Excel' }}
                         </button>
@@ -588,7 +722,7 @@ watch(code, () => {
                     <h4>{{ section.section_name }}</h4>
 
                     <div v-for="field in section.fields" :key="field.id" class="field-row" v-show="isFieldVisible(field, section.fields)">
-                        <label class="field-label">{{ field.field_label }}<span v-if="field.is_required" class="required-mark"> *</span></label>
+                        <label class="field-label">{{ displayFieldLabel(field, section.fields) }}<span v-if="field.is_required" class="required-mark"> *</span></label>
 
                         <!-- Info box: KAP MGN dipilih → surat keberatan tidak diperlukan -->
                         <div v-if="field.field_name === 'prior_kap_type' && answers[field.id] === 'KAP_MGN'" class="info-box info-box--success">
@@ -604,7 +738,12 @@ watch(code, () => {
                             :model-value="answers[field.id]"
                             :columns="repeaterColumnsFor(field)"
                             :editable="canEdit"
-                            @update:model-value="answers[field.id] = $event"
+                            :response-id="responseId"
+                            :field-id="field.id"
+                            :disable-add="field.field_name === 'search_results'"
+                            :disable-remove="field.field_name === 'search_results'"
+                            :mode="code === '1400' ? 'stacked' : 'table'"
+                            @update:model-value="handleRepeaterUpdate(field, $event)"
                         />
 
                         <!-- Field Time Range (Jam Digital dari - s/d) -->
@@ -639,16 +778,26 @@ watch(code, () => {
                         </div>
 
                         <!-- Repeater untuk Attendants / Daftar Hadir Peserta Survey -->
-                        <RepeaterField
-                            v-else-if="field.field_name === 'attendants'"
-                            :model-value="answers[field.id]"
-                            :columns="[
-                                { key: 'nama', label: 'Nama Peserta' },
-                                { key: 'jabatan', label: 'Jabatan / Instansi' }
-                            ]"
-                            :editable="canEdit"
-                            @update:model-value="answers[field.id] = $event"
-                        />
+                        <!-- (field_type sudah 'repeater' di DB, ditangani oleh blok v-if di atas) -->
+
+                        <!-- Field File Upload -->
+                        <div v-else-if="field.field_type === 'file'" class="file-upload-field">
+                            <template v-if="canEdit">
+                                <button
+                                    class="btn ghost"
+                                    :disabled="uploadingFieldId === field.id"
+                                    @click="triggerFieldFileInput(field.id)"
+                                >
+                                    {{ uploadingFieldId === field.id ? 'Mengunggah...' : (answers[field.id] ? 'Ganti File' : 'Pilih File') }}
+                                </button>
+                            </template>
+                            <div v-if="answers[field.id]" class="file-preview">
+                                <a :href="fieldFileUrl(answers[field.id])" target="_blank" class="file-link">
+                                    📎 {{ fieldFileName(answers[field.id]) }}
+                                </a>
+                            </div>
+                            <p v-else-if="!canEdit" class="answer-display">- Belum ada file -</p>
+                        </div>
 
                         <!-- Field Standard Lainnya -->
                         <template v-else-if="canEdit">
@@ -796,6 +945,32 @@ watch(code, () => {
 .action-left { display: flex; align-items: center; }
 .action-right { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; }
 .comment-input { min-height: 60px; width: 100%; margin-bottom: 0.5rem; }
+
+.file-upload-field {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 0.5rem 0;
+}
+.file-preview {
+    display: inline-flex;
+    align-items: center;
+    background: #f1f5f9;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+}
+.file-link {
+    color: #0284c7;
+    font-weight: 500;
+    text-decoration: none;
+    font-size: 0.88rem;
+    word-break: break-all;
+}
+.file-link:hover {
+    text-decoration: underline;
+}
 
 .btn { padding: 0.6rem 1.2rem; border-radius: 4px; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; }
 .btn:disabled { opacity: 0.6; cursor: not-allowed; }

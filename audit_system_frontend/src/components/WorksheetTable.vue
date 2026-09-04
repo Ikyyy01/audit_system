@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { evalFormula, formatNumber } from '../lib/formula';
 
 interface WorksheetColumn {
     id: number;
@@ -30,29 +31,6 @@ const emit = defineEmits<{
 const sortedColumns = computed(() => [...props.columns].sort((a, b) => a.column_order - b.column_order));
 const isNumericType = (type: string) => type === 'number' || type === 'currency' || type === 'formula';
 
-// Evaluator aritmatika sederhana & aman (bukan eval bebas) — cuma dipakai buat
-// kolom formula yang expression-nya didefinisikan admin di seeder/database,
-// bukan input user. Token yang lolos cuma angka, +-*/(), dan column_key.
-function evalFormula(expr: string, rowData: Record<string, string>): number {
-    const tokens = expr.match(/[a-zA-Z_][a-zA-Z0-9_]*|[-+*/().]|\d+(\.\d+)?/g) || [];
-    const resolved = tokens.map((t) => {
-        if (/^[a-zA-Z_]/.test(t)) {
-            const v = Number(rowData[t]);
-            return Number.isFinite(v) ? String(v) : '0';
-        }
-        return t;
-    });
-    const joined = resolved.join(' ');
-    if (!/^[\d\s+\-*/().]*$/.test(joined) || joined.trim() === '') return 0;
-    try {
-        // eslint-disable-next-line no-new-func
-        const result = Function(`"use strict"; return (${joined});`)();
-        return typeof result === 'number' && Number.isFinite(result) ? result : 0;
-    } catch {
-        return 0;
-    }
-}
-
 function cellValue(row: WorksheetRow, col: WorksheetColumn): string {
     if (col.is_formula && col.formula_expression) {
         return String(evalFormula(col.formula_expression, row.data));
@@ -81,10 +59,6 @@ function removeRow(rowIndex: number) {
 function columnTotal(col: WorksheetColumn): number {
     if (!isNumericType(col.data_type)) return 0;
     return props.rows.reduce((sum, row) => sum + (Number(cellValue(row, col)) || 0), 0);
-}
-
-function formatNumber(value: number): string {
-    return value.toLocaleString('id-ID', { maximumFractionDigits: 2 });
 }
 </script>
 
